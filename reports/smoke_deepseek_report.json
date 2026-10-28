@@ -1,0 +1,47 @@
+{
+  "target_n": 2000,
+  "n_accepted": 12,
+  "n_rejected": 0,
+  "by_lang": {
+    "en": 4,
+    "ru": 4,
+    "zh": 4
+  },
+  "by_scenario": {
+    "phishing": 3,
+    "ordinary_request": 3,
+    "impersonation_bank": 3,
+    "emotional_benign": 3
+  },
+  "by_lang_scenario": {
+    "en/phishing": 1,
+    "en/ordinary_request": 1,
+    "en/impersonation_bank": 1,
+    "en/emotional_benign": 1,
+    "ru/phishing": 1,
+    "ru/ordinary_request": 1,
+    "ru/impersonation_bank": 1,
+    "ru/emotional_benign": 1,
+    "zh/phishing": 1,
+    "zh/ordinary_request": 1,
+    "zh/impersonation_bank": 1,
+    "zh/emotional_benign": 1
+  },
+  "scam": 6,
+  "benign": 6,
+  "scam_share": 0.5,
+  "hard_negatives": 0,
+  "hard_neg_share_of_benign": 0.0,
+  "mean_turns": 8.33,
+  "onset_distribution": {
+    "1": 5,
+    "3": 1
+  },
+  "benign_onset_none": 6,
+  "reject_reasons": {},
+  "generators": {
+    "deepseek-chat": 6,
+    "deepseek-reasoner": 6
+  },
+  "multi_generator_ok": true
+}

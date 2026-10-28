@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Разбор спорных диалогов (hard_negative)</title>
+<style>
+  :root {
+    --bg: #f6f5f2;
+    --card: #ffffff;
+    --ink: #1d1d1f;
+    --muted: #6b6b70;
+    --line: #dedcd6;
+    --atk: #b23a2e;
+    --atk-bg: #fdf1ef;
+    --tgt: #2f5d8c;
+    --tgt-bg: #f0f4f9;
+    --yes: #a6342a;
+    --no: #2b6b4f;
+    --skip: #6b6b70;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.55 -apple-system, "Helvetica Neue", "Segoe UI", "PingFang SC",
+          "Noto Sans CJK SC", Arial, sans-serif;
+    padding-bottom: 220px;
+  }
+
+  /* ---------- шапка ---------- */
+  header {
+    position: sticky; top: 0; z-index: 10;
+    background: var(--card);
+    border-bottom: 1px solid var(--line);
+    padding: 14px 28px 12px;
+  }
+  .bar { height: 6px; background: #e8e6e0; border-radius: 3px; overflow: hidden; margin-bottom: 12px; }
+  .bar > i { display: block; height: 100%; background: #56585c; width: 0; transition: width .18s; }
+  .toprow { display: flex; align-items: baseline; gap: 18px; flex-wrap: wrap; }
+  .counter { font-size: 20px; font-weight: 600; white-space: nowrap; }
+  .did { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 14px; color: var(--muted); }
+  .stats { margin-left: auto; font-size: 14px; color: var(--muted); white-space: nowrap; }
+  .stats b { color: var(--ink); font-weight: 600; }
+  .meta { margin-top: 8px; display: flex; gap: 10px; flex-wrap: wrap; font-size: 14px; }
+  .tag {
+    background: #f1efea; border: 1px solid var(--line); border-radius: 999px;
+    padding: 3px 12px; color: #3c3c40;
+  }
+  .tag.gold { background: #fdf1ef; border-color: #eccfc9; color: #8a2f26; }
+  .tag.silver { background: #eef3ef; border-color: #cfdfd4; color: #2b6b4f; }
+  .tag.state-yes { background: #a6342a; border-color: #a6342a; color: #fff; }
+  .tag.state-no  { background: #2b6b4f; border-color: #2b6b4f; color: #fff; }
+  .tag.state-skip{ background: #6b6b70; border-color: #6b6b70; color: #fff; }
+
+  /* ---------- диалог ---------- */
+  main { max-width: 900px; margin: 26px auto 0; padding: 0 24px; }
+  .turn {
+    display: grid; grid-template-columns: 34px 1fr; gap: 14px;
+    padding: 12px 16px; margin-bottom: 8px;
+    background: var(--card); border: 1px solid var(--line);
+    border-left: 4px solid var(--line); border-radius: 8px;
+  }
+  .turn.atk { border-left-color: var(--atk); background: var(--atk-bg); }
+  .turn.tgt { border-left-color: var(--tgt); background: var(--tgt-bg); }
+  .num { color: var(--muted); font-size: 15px; text-align: right; padding-top: 2px;
+         font-variant-numeric: tabular-nums; }
+  .who { font-size: 13px; letter-spacing: .04em; text-transform: uppercase;
+         font-weight: 600; margin-bottom: 3px; }
+  .turn.atk .who { color: var(--atk); }
+  .turn.tgt .who { color: var(--tgt); }
+  .txt { font-size: 18px; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; }
+
+  /* ---------- низ ---------- */
+  footer {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+    background: var(--card); border-top: 1px solid var(--line);
+    padding: 14px 28px 16px;
+  }
+  .q { font-size: 21px; font-weight: 600; margin: 0 0 12px; text-align: center; }
+  .acts { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  button {
+    font: inherit; cursor: pointer; border-radius: 8px;
+    border: 1px solid var(--line); background: #f4f2ee; color: var(--ink);
+    padding: 11px 18px;
+  }
+  button:hover { background: #eae7e1; }
+  button.big { font-size: 17px; font-weight: 600; color: #fff; border: none; padding: 13px 26px; }
+  button.yes { background: var(--yes); }
+  button.no  { background: var(--no); }
+  button.skip { background: var(--skip); }
+  button.big:hover { filter: brightness(1.08); }
+  button.on { outline: 3px solid #1d1d1f; outline-offset: 2px; }
+  kbd {
+    font: 12px ui-monospace, Menlo, monospace; background: rgba(255,255,255,.28);
+    border-radius: 4px; padding: 1px 5px; margin-left: 7px;
+  }
+  button:not(.big) kbd { background: #e2dfd8; }
+  .row2 { display: flex; gap: 12px; align-items: center; margin-top: 12px;
+          max-width: 900px; margin-left: auto; margin-right: auto; }
+  .row2 input[type=text] {
+    flex: 1; font: inherit; padding: 9px 12px;
+    border: 1px solid var(--line); border-radius: 8px; background: #fbfaf8;
+  }
+  .row2 input[type=text]:focus { outline: 2px solid #56585c; outline-offset: -1px; }
+  .hint { text-align: center; font-size: 13px; color: var(--muted); margin-top: 10px; }
+  #toast {
+    position: fixed; bottom: 240px; left: 50%; transform: translateX(-50%);
+    background: #1d1d1f; color: #fff; padding: 9px 18px; border-radius: 8px;
+    font-size: 14px; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 20;
+  }
+  #toast.show { opacity: .94; }
+  #done { text-align: center; padding: 40px 20px; font-size: 18px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="bar"><i id="bar"></i></div>
+  <div class="toprow">
+    <span class="counter" id="counter">— из —</span>
+    <span class="did" id="did"></span>
+    <span class="stats" id="stats"></span>
+  </div>
+  <div class="meta" id="meta"></div>
+</header>
+
+<main id="dialog"></main>
+
+<footer>
+  <p class="q">Есть ли утверждение, которое собеседник не может проверить и которое ложно?</p>
+  <div class="acts">
+    <button class="big yes"  id="bYes"  onclick="vote(1)">Да — это скам<kbd>Y</kbd></button>
+    <button class="big no"   id="bNo"   onclick="vote(0)">Нет — benign<kbd>N</kbd></button>
+    <button class="big skip" id="bSkip" onclick="vote('skip')">Пропустить<kbd>S</kbd></button>
+  </div>
+  <div class="row2">
+    <button onclick="go(-1)" title="Назад">← Назад</button>
+    <input type="text" id="note" placeholder="Короткая заметка по диалогу (необязательно)"
+           oninput="saveNote(this.value)">
+    <button onclick="go(1)" title="Вперёд">Вперёд →</button>
+    <button onclick="downloadCsv()">Скачать CSV</button>
+    <button onclick="document.getElementById('file').click()">Загрузить CSV</button>
+    <input type="file" id="file" accept=".csv,text/csv" hidden onchange="uploadCsv(this)">
+  </div>
+  <div class="hint">
+    Клавиши: <b>Y</b> да · <b>N</b> нет · <b>S</b> пропустить · <b>←/→</b> навигация ·
+    <b>Esc</b> выйти из поля заметки. Состояние живёт только в этой вкладке —
+    сохраняйте кнопкой «Скачать CSV».
+  </div>
+</footer>
+
+<div id="toast"></div>
+
+<script>
+const DATA = __DATA__;
+const N = DATA.length;
+const state = DATA.map(d => ({dialog_id: d.dialog_id, verdict: null, note: ""}));
+let idx = 0;
+
+const LANG = {ru: "русский", en: "английский", zh: "китайский"};
+const VERDICT_TAG = {1: ["state-yes", "ответ: скам"], 0: ["state-no", "ответ: benign"],
+                     skip: ["state-skip", "пропущен"]};
+
+function esc(s) {
+  return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+}
+
+function render() {
+  const d = DATA[idx], st = state[idx];
+
+  document.getElementById("counter").textContent = `${idx + 1} из ${N}`;
+  document.getElementById("did").textContent = d.dialog_id;
+  document.getElementById("bar").style.width = ((idx + 1) / N * 100) + "%";
+
+  const answered = state.filter(s => s.verdict === 1 || s.verdict === 0).length;
+  const skipped = state.filter(s => s.verdict === "skip").length;
+  document.getElementById("stats").innerHTML =
+    `отвечено <b>${answered}</b> · пропущено <b>${skipped}</b> · осталось <b>${N - answered - skipped}</b>`;
+
+  const goldOnset = d.gold.onset ? `, t*=${esc(d.gold.onset)}` : "";
+  const goldSub = d.gold.subtypes ? `, ${esc(d.gold.subtypes)}` : "";
+  const tags = [
+    `<span class="tag">сценарий: <b>${esc(d.scenario)}</b></span>`,
+    `<span class="tag">язык: ${esc(LANG[d.lang] || d.lang)}</span>`,
+    `<span class="tag">реплик: ${d.n_turns}</span>`,
+    `<span class="tag gold">gold (моя): ${d.gold.is_scam ? "скам" : "benign"}${goldOnset}${goldSub}</span>`,
+    `<span class="tag silver">silver (LLM): ${d.silver.is_scam ? "скам" : "benign"}` +
+      `${d.silver.hard_negative ? ", hard_negative" : ""}</span>`,
+  ];
+  if (st.verdict !== null) {
+    const [cls, label] = VERDICT_TAG[st.verdict];
+    tags.push(`<span class="tag ${cls}">${label}</span>`);
+  }
+  document.getElementById("meta").innerHTML = tags.join("");
+
+  document.getElementById("dialog").innerHTML = d.turns.map(t => {
+    const role = t.role === "atk" ? "atk" : (t.role === "tgt" ? "tgt" : "");
+    const who = t.speaker ? `${esc(t.speaker)} · ${esc(t.role)}` : esc(t.role);
+    return `<div class="turn ${role}">
+      <div class="num">${esc(t.i)}</div>
+      <div><div class="who">${who}</div><div class="txt">${esc(t.text)}</div></div>
+    </div>`;
+  }).join("");
+
+  document.getElementById("note").value = st.note;
+  for (const [id, v] of [["bYes", 1], ["bNo", 0], ["bSkip", "skip"]]) {
+    document.getElementById(id).classList.toggle("on", st.verdict === v);
+  }
+  window.scrollTo(0, 0);
+}
+
+function vote(v) {
+  state[idx].verdict = state[idx].verdict === v ? null : v;  // повторное нажатие снимает
+  render();
+  if (state[idx].verdict !== null && idx < N - 1) setTimeout(() => go(1), 90);
+}
+
+function saveNote(v) { state[idx].note = v; }
+
+function go(step) {
+  const next = idx + step;
+  if (next < 0 || next >= N) { toast(next < 0 ? "Это первый диалог" : "Это последний диалог"); return; }
+  idx = next;
+  render();
+}
+
+function jumpFirstUnanswered() {
+  const i = state.findIndex(s => s.verdict === null);
+  if (i >= 0) { idx = i; render(); }
+}
+
+document.addEventListener("keydown", e => {
+  const t = e.target.tagName;
+  if (t === "INPUT" || t === "TEXTAREA") {
+    if (e.key === "Escape") e.target.blur();
+    return;
+  }
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const k = e.key.toLowerCase();
+  if (k === "y" || k === "н") { vote(1); e.preventDefault(); }
+  else if (k === "n" || k === "т") { vote(0); e.preventDefault(); }
+  else if (k === "s" || k === "ы") { vote("skip"); e.preventDefault(); }
+  else if (e.key === "ArrowRight") { go(1); e.preventDefault(); }
+  else if (e.key === "ArrowLeft") { go(-1); e.preventDefault(); }
+});
+
+/* ---------- CSV ---------- */
+function csvCell(s) {
+  s = s == null ? "" : String(s);
+  return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+
+function buildCsv() {
+  const lines = ["dialog_id,is_scam_final,note"];
+  for (const s of state) {
+    if (s.verdict === null && !s.note) continue;
+    const v = s.verdict === "skip" || s.verdict === null ? "" : String(s.verdict);
+    lines.push([csvCell(s.dialog_id), csvCell(v), csvCell(s.note)].join(","));
+  }
+  return lines.join("\n") + "\n";
+}
+
+function downloadCsv() {
+  const answered = state.filter(s => s.verdict === 1 || s.verdict === 0).length;
+  const blob = new Blob(["﻿" + buildCsv()], {type: "text/csv;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `hardneg_review_${answered}of${N}.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  toast(`CSV сохранён — ${answered} решений`);
+}
+
+function parseCsv(text) {
+  text = text.replace(/^﻿/, "");
+  const rows = []; let row = [], cell = "", q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) {
+      if (c === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; }
+      else cell += c;
+    } else if (c === '"') q = true;
+    else if (c === ",") { row.push(cell); cell = ""; }
+    else if (c === "\n") { row.push(cell); rows.push(row); row = []; cell = ""; }
+    else if (c !== "\r") cell += c;
+  }
+  if (cell !== "" || row.length) { row.push(cell); rows.push(row); }
+  return rows.filter(r => r.some(c => c.trim() !== ""));
+}
+
+function uploadCsv(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const rows = parseCsv(reader.result);
+      const head = rows[0].map(h => h.trim().toLowerCase());
+      const ci = head.indexOf("dialog_id"), vi = head.indexOf("is_scam_final"), ni = head.indexOf("note");
+      if (ci < 0 || vi < 0) { toast("В файле нет колонок dialog_id / is_scam_final"); return; }
+      const byId = new Map(state.map((s, i) => [s.dialog_id, i]));
+      let applied = 0, unknown = 0;
+      for (const r of rows.slice(1)) {
+        const i = byId.get((r[ci] || "").trim());
+        if (i === undefined) { unknown++; continue; }
+        const raw = (r[vi] || "").trim().toLowerCase();
+        state[i].verdict = raw === "1" ? 1 : raw === "0" ? 0 : raw === "" ? null : state[i].verdict;
+        if (ni >= 0) state[i].note = r[ni] || "";
+        applied++;
+      }
+      jumpFirstUnanswered(); render();
+      toast(`Загружено ${applied} строк${unknown ? `, ${unknown} чужих пропущено` : ""}`);
+    } catch (err) {
+      toast("Не удалось прочитать CSV: " + err.message);
+    }
+    input.value = "";
+  };
+  reader.readAsText(file, "utf-8");
+}
+
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById("toast");
+  el.textContent = msg; el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 2200);
+}
+
+window.addEventListener("beforeunload", e => {
+  if (state.some(s => s.verdict !== null || s.note)) { e.preventDefault(); e.returnValue = ""; }
+});
+
+render();
+</script>
+</body>
+</html>

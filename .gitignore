@@ -1,0 +1,71 @@
+# python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+build/
+dist/
+
+# данные и артефакты (не коммитим сырьё/чекпоинты)
+data/raw/**
+data/synth/**
+data/augmented/**
+data/splits/**
+data/skeletons/**
+# корпуса и gold — отдельная публикация после проверки прав и обезличивания
+data/corpus/**
+data/gold/**
+!**/.gitkeep
+checkpoints/
+wandb/
+*.ckpt
+*.pt
+*.pth
+*.safetensors
+*.onnx
+
+# результаты обучения, веса в best/, логи TensorBoard
+/runs/
+
+# аннотации: коммитим только gold и калибровку, не приватные наборы
+data/annotations/*
+!data/annotations/calibration_items_gold.csv
+!data/annotations/annotator_demo.csv
+!data/annotations/.gitkeep
+
+# ос
+.DS_Store
+
+# рукопись статьи
+/piere2026_paper_en_krupoderova.docx
+*.docx
+/paper/
+# документация и черновики остаются только локально
+/docs/
+
+# секреты и персональные настройки (пример окружения можно публиковать без значений)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+/.claude/
+/.idea/
+/.vscode/
+/scripts_tmp/
+
+# фигуры (генерируются scripts/make_figures.py)
+reports/figures/
+reports/gen_logs/
+# разметочные HTML содержат диалоги; выгрузка расхождений — построчные данные
+reports/hardneg_review.html
+reports/iaa_round2.html
+reports/gold_vs_draft_test_disagreements.csv
+
+# веса моделей: тяжёлые (~1.1 ГБ на чекпоинт), реестр — в models/README.md
+models/**
+!models/README.md

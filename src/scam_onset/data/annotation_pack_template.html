@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__TITLE__</title>
+<style>
+  :root {
+    --surface: #fcfcfb; --plane: #f9f9f7; --ink: #0b0b0b; --ink2: #52514e;
+    --muted: #898781; --grid: #e1e0d9; --border: rgba(11,11,11,0.10);
+    --accent: #2a78d6; --accent-soft: #cde2fb; --green: #008300;
+    --red: #e34948; --warn-bg: #fff3d6; --warn-bd: #eda100;
+    --bubble-a: #f0e9e2; --bubble-b: #e8eef7;
+  }
+  [data-theme="dark"] {
+    --surface: #1a1a19; --plane: #0d0d0d; --ink: #ffffff; --ink2: #c3c2b7;
+    --muted: #898781; --grid: #2c2c2a; --border: rgba(255,255,255,0.12);
+    --accent: #3987e5; --accent-soft: #1c3a5e; --green: #2fae2f;
+    --red: #e66767; --warn-bg: #3a3117; --warn-bd: #c98500;
+    --bubble-a: #2b2622; --bubble-b: #20262e;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: var(--plane); color: var(--ink); font-size: 15px;
+  }
+  button { font: inherit; cursor: pointer; }
+
+  /* ── верхняя панель ── */
+  #topbar {
+    position: sticky; top: 0; z-index: 20; display: flex; align-items: center;
+    gap: 14px; padding: 8px 16px; background: var(--surface);
+    border-bottom: 1px solid var(--grid);
+  }
+  #topbar .title { font-weight: 600; }
+  #progress-wrap { flex: 1; min-width: 200px; }
+  #progress-text { font-size: 13px; color: var(--ink2); margin-bottom: 3px; }
+  #progress-bar { height: 6px; border-radius: 3px; background: var(--grid); overflow: hidden; }
+  #progress-fill { height: 100%; width: 0; background: var(--accent); transition: width .2s; }
+  .iconbtn {
+    background: none; border: 1px solid var(--border); border-radius: 8px;
+    color: var(--ink2); padding: 5px 10px;
+  }
+  .iconbtn:hover { border-color: var(--accent); color: var(--ink); }
+  #btn-export.dirty { border-color: var(--warn-bd); color: var(--warn-bd); font-weight: 600; }
+
+  /* ── раскладка ── */
+  #layout { display: flex; gap: 0; max-width: 1250px; margin: 0 auto; }
+  #dialog-col { flex: 1; min-width: 0; padding: 18px 20px 240px; }
+  #panel {
+    width: 300px; flex: none; position: sticky; top: 54px;
+    align-self: flex-start; max-height: calc(100vh - 54px); overflow-y: auto;
+    padding: 14px 16px 20px; border-left: 1px solid var(--grid);
+    background: var(--surface);
+  }
+
+  /* ── диалог ── */
+  #dlg-header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; color: var(--ink2); font-size: 13px; }
+  #dlg-header b { color: var(--ink); font-size: 15px; }
+  .turn {
+    display: flex; gap: 10px; margin: 10px 0; max-width: 92%;
+    border: 2px solid transparent; border-radius: 12px; padding: 10px 12px;
+  }
+  .turn .who { flex: none; font-size: 12px; color: var(--muted); width: 44px; text-align: center; }
+  .turn .who .side { font-weight: 700; font-size: 14px; color: var(--ink2); }
+  .turn .txt { font-size: 17.5px; line-height: 1.5; white-space: pre-wrap; }
+  .turn.atk { background: var(--bubble-a); cursor: pointer; }
+  .turn.tgt { background: var(--bubble-b); margin-left: auto; }
+  .turn.atk:hover { border-color: var(--red); border-style: dashed; }
+  .turn.onset { border-color: var(--red); border-style: solid; box-shadow: 0 0 0 1px var(--red); }
+  .turn.onset .who::after { content: "t*"; display: block; color: var(--red); font-weight: 700; }
+  #reveal-controls { margin: 16px 0; display: flex; gap: 10px; align-items: center; }
+  #btn-reveal {
+    background: var(--accent); color: #fff; border: none; border-radius: 10px;
+    padding: 10px 18px; font-size: 15px;
+  }
+  #btn-reveal:disabled { background: var(--grid); color: var(--muted); cursor: default; }
+  #reveal-count { color: var(--muted); font-size: 13px; }
+  .atk-hint { color: var(--muted); font-size: 12.5px; margin-top: 4px; }
+  #btn-mode.seq { border-color: var(--accent); color: var(--accent); }
+  body.fullview #reveal-controls { display: none; }
+
+  /* ── панель разметки ── */
+  #panel h3 { margin: 4px 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+  .bigbtns { display: flex; gap: 8px; }
+  .bigbtn {
+    flex: 1; padding: 14px 6px; font-size: 16px; font-weight: 700;
+    border: 2px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--ink2);
+  }
+  #btn-scam.active { background: var(--red); border-color: var(--red); color: #fff; }
+  #btn-benign.active { background: var(--green); border-color: var(--green); color: #fff; }
+  .bigbtn:disabled { opacity: .45; cursor: not-allowed; }
+  .kbd { font: 11px/1.4 ui-monospace, monospace; border: 1px solid var(--border); border-radius: 4px; padding: 0 4px; color: var(--muted); }
+  fieldset { border: 1px solid var(--grid); border-radius: 10px; margin: 12px 0 0; padding: 8px 10px; }
+  fieldset:disabled { opacity: .45; }
+  fieldset legend { font-size: 12px; color: var(--muted); padding: 0 4px; }
+  fieldset label { display: flex; gap: 8px; align-items: center; padding: 4px 0; font-size: 14px; }
+  input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); }
+  #onset-display {
+    margin: 12px 0 0; padding: 10px; border: 1px solid var(--grid); border-radius: 10px;
+    font-size: 14px;
+  }
+  #onset-display b { color: var(--red); font-size: 16px; }
+  .softwarn { border-color: var(--warn-bd) !important; background: var(--warn-bg); }
+  #consistency-hint { min-height: 18px; font-size: 12.5px; color: var(--warn-bd); margin: 6px 0 0; }
+  #note { width: 100%; min-height: 54px; margin-top: 10px; border: 1px solid var(--grid); border-radius: 8px; background: var(--plane); color: var(--ink); padding: 8px; font: inherit; font-size: 13.5px; resize: vertical; }
+  #btn-save {
+    width: 100%; margin-top: 12px; padding: 12px; font-size: 15px; font-weight: 600;
+    background: var(--accent); color: #fff; border: none; border-radius: 10px;
+  }
+  #btn-save:disabled { background: var(--grid); color: var(--muted); }
+  #nav-row { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; color: var(--ink2); font-size: 13px; }
+  #nav-row button { background: none; border: 1px solid var(--border); border-radius: 8px; color: var(--ink2); padding: 4px 12px; }
+  label.inline { display: flex; gap: 8px; align-items: center; margin-top: 10px; font-size: 14px; }
+
+  /* ── шпаргалка правил ── */
+  #cheatsheet { margin-top: 16px; border: 1px solid var(--grid); border-radius: 10px; font-size: 13px; }
+  #cheatsheet summary { padding: 8px 10px; cursor: pointer; color: var(--ink2); font-weight: 600; }
+  #cheatsheet .body { padding: 0 12px 10px; color: var(--ink2); line-height: 1.45; }
+  #cheatsheet code { background: var(--plane); border-radius: 4px; padding: 0 3px; }
+
+  /* ── модалка клавиш, баннеры ── */
+  #hotkeys-modal, #break-banner, #done-banner, #resume-banner {
+    position: fixed; z-index: 50; display: none;
+  }
+  #storage-warn {
+    display: none; padding: 10px 16px; background: var(--warn-bg);
+    border-bottom: 1px solid var(--warn-bd); font-size: 13.5px;
+  }
+  #resume-banner {
+    left: 50%; transform: translateX(-50%); bottom: 24px;
+    background: var(--surface); border: 1px solid var(--accent); border-radius: 12px;
+    padding: 12px 18px; box-shadow: 0 4px 18px rgba(0,0,0,.15); max-width: 480px;
+  }
+  #hotkeys-modal { inset: 0; background: rgba(0,0,0,.45); }
+  #hotkeys-modal .card {
+    max-width: 380px; margin: 12vh auto; background: var(--surface); color: var(--ink);
+    border-radius: 14px; padding: 20px 24px; border: 1px solid var(--border);
+  }
+  #hotkeys-modal table { border-collapse: collapse; width: 100%; }
+  #hotkeys-modal td { padding: 4px 6px; font-size: 14px; }
+  #break-banner {
+    left: 50%; transform: translateX(-50%); bottom: 24px;
+    background: var(--surface); border: 1px solid var(--warn-bd); border-radius: 12px;
+    padding: 12px 18px; box-shadow: 0 4px 18px rgba(0,0,0,.15); max-width: 440px;
+  }
+  #done-banner {
+    left: 50%; transform: translateX(-50%); top: 20vh;
+    background: var(--surface); border: 1px solid var(--green); border-radius: 14px;
+    padding: 22px 26px; text-align: center;
+  }
+  .flash { animation: flash .5s 2; }
+  @keyframes flash { 50% { background: var(--warn-bg); } }
+  #selftest-out { display: none; }
+</style>
+</head>
+<body>
+<header id="topbar">
+  <span class="title">__TITLE__</span>
+  <div id="progress-wrap">
+    <div id="progress-text">…</div>
+    <div id="progress-bar"><div id="progress-fill"></div></div>
+  </div>
+  <button class="iconbtn" id="btn-mode" title="Весь диалог сразу / по одной реплике (F)">👁 весь текст</button>
+  <button class="iconbtn" id="btn-export" title="Экспорт CSV — готовые метки">⬇ CSV</button>
+  <button class="iconbtn" id="btn-save-progress" title="Сохранить прогресс в файл — чтобы продолжить потом или на другом компьютере">💾</button>
+  <button class="iconbtn" id="btn-load-progress" title="Загрузить сохранённый прогресс (.json) или CSV разметки">📂</button>
+  <input type="file" id="file-input" accept=".json,.csv,application/json,text/csv" hidden>
+  <button class="iconbtn" id="btn-theme" title="Тёмная/светлая тема">◐</button>
+  <button class="iconbtn" id="btn-hotkeys" title="Горячие клавиши">?</button>
+</header>
+
+<div id="storage-warn">
+  <b>⚠ Автосохранение в этом браузере недоступно.</b>
+  Разметка живёт только в этой вкладке — сохраняй прогресс кнопкой «💾», иначе потеряешь при закрытии.
+</div>
+
+<div id="layout">
+  <div id="dialog-col">
+    <div id="dlg-header"></div>
+    <div id="turns"></div>
+    <div id="reveal-controls">
+      <button id="btn-reveal">Дальше (Space)</button>
+      <span id="reveal-count"></span>
+    </div>
+    <div class="atk-hint" id="atk-hint"></div>
+
+    <details id="cheatsheet">
+      <summary>Шпаргалка: правила онсета (guidelines v1.2)</summary>
+      <div class="body">
+        <p><b>Онсет t*</b> — номер ПЕРВОЙ реплики A, где обман <b>присутствует в тексте</b>. Критерии — любой из:</p>
+        <p>(a) ложная / непроверяемая легенда или ситуация, поданная как факт;<br>
+           (b) фабрикация срочности / угрозы / выгоды для подталкивания к действию;<br>
+           (c) первое побуждение к целевому небезопасному действию;<br>
+           (d) запрос конфиденциальных данных под ложным предлогом.</p>
+        <p><b>Правило первой реплики:</b> обман уже в реплике 1 (cold phishing) → <code>t*=1</code>. Ложная личность как факт («это служба безопасности банка») — уже онсет, до просьбы. Слабый/размытый первый сигнал → t* = первая реплика с любым из (a)–(d), даже если слабо.</p>
+        <p><b>Правило приветствия:</b> нейтральное приветствие / small talk / эмоции без (a)–(d) — НЕ онсет. Медленный заход: онсет = первая <b>непроверяемая легенда</b> («я на платформе в море»), не эмоция в начале и не просьба денег в конце.</p>
+        <p><b>is_scam=1</b> — если сторона обманывает (ложная легенда, личность, выдуманная выгода/угроза), чтобы подтолкнуть к действию во вред: деньги, код/карта/пароль, вредная ссылка, установка ПО. Медленная манипуляция (романтика, инвестиции) — тоже скам.</p>
+        <p><b>benign</b> — нет ложной легенды И не просят опасного в пользу отправителя, даже если есть деньги/ссылка/срочность. У benign <code>t*</code> пуст. <b>hard_negative</b> — benign с деньгами/ссылкой/угрозой без обмана (правдивое уведомление банка, реальная доставка, честный маркетинг).</p>
+        <p><b>Подтипы</b> (scam, можно несколько): 1 <code>phishing_link</code> — ведут по ссылке за данными/оплатой; 2 <code>money_request</code> — просят перевод/оплату/комиссию; 3 <code>other</code> — обман через роль или сценарий (банк/госорган/родственник/начальник, романтика, инвестиции, фейк-вакансия, tech-support). Деньги через роль → и 2, и 3.</p>
+        <p><b>Консистентность:</b> scam → есть t* и ≥1 подтип; benign → подтипы пусты, t* пуст.</p>
+      </div>
+    </details>
+  </div>
+
+  <aside id="panel">
+    <h3>Разметка</h3>
+    <div class="bigbtns">
+      <button class="bigbtn" id="btn-scam">SCAM <span class="kbd">S</span></button>
+      <button class="bigbtn" id="btn-benign" title="Доступно после раскрытия всех реплик">BENIGN <span class="kbd">B</span></button>
+    </div>
+    <fieldset id="subtypes">
+      <legend>подтипы (scam)</legend>
+      <label><input type="checkbox" data-sub="phishing_link"> <span class="kbd">1</span> phishing_link</label>
+      <label><input type="checkbox" data-sub="money_request"> <span class="kbd">2</span> money_request</label>
+      <label><input type="checkbox" data-sub="other"> <span class="kbd">3</span> other</label>
+    </fieldset>
+    <div id="onset-display">t*: <b id="onset-val">—</b> <span id="onset-hint" style="color:var(--muted);font-size:12px"></span></div>
+    <label class="inline" id="hn-row"><input type="checkbox" id="hard-neg"> hard_negative <span class="kbd">H</span></label>
+    <label class="inline"><input type="checkbox" id="doubt"> сомневаюсь — на второй проход <span class="kbd">D</span></label>
+    <textarea id="note" placeholder="заметка для сомнительных случаев (Esc — выйти из поля)"></textarea>
+    <div id="consistency-hint"></div>
+    <button id="btn-save">Сохранить и дальше <span class="kbd" style="color:#fff;border-color:#fff">Enter</span></button>
+    <div id="nav-row">
+      <button id="btn-prev" title="Предыдущий (←)">←</button>
+      <span id="pos-text"></span>
+      <button id="btn-next" title="Следующий (→)">→</button>
+    </div>
+  </aside>
+</div>
+
+<div id="hotkeys-modal">
+  <div class="card">
+    <h3 style="margin-top:0">Горячие клавиши</h3>
+    <table>
+      <tr><td><span class="kbd">F</span></td><td>весь диалог сразу / по одной реплике</td></tr>
+      <tr><td><span class="kbd">Space</span></td><td>раскрыть следующую реплику (режим «по одной»)</td></tr>
+      <tr><td><span class="kbd">S</span> / <span class="kbd">B</span></td><td>scam / benign (B — после всех реплик)</td></tr>
+      <tr><td>клик по реплике A</td><td>онсет здесь (повторный — снять)</td></tr>
+      <tr><td><span class="kbd">1</span> <span class="kbd">2</span> <span class="kbd">3</span></td><td>подтипы: phishing_link / money_request / other</td></tr>
+      <tr><td><span class="kbd">H</span></td><td>hard_negative (только benign)</td></tr>
+      <tr><td><span class="kbd">D</span></td><td>«сомневаюсь»</td></tr>
+      <tr><td><span class="kbd">Enter</span></td><td>сохранить и дальше</td></tr>
+      <tr><td><span class="kbd">←</span> / <span class="kbd">→</span></td><td>навигация по диалогам</td></tr>
+      <tr><td><span class="kbd">?</span></td><td>эта шпаргалка</td></tr>
+    </table>
+    <p style="font-size:13px;color:var(--ink2);line-height:1.45">
+      Разметка сохраняется в браузере автоматически — можно закрыть вкладку и продолжить
+      на следующий день с первого неразмеченного диалога. «💾» кладёт прогресс в файл
+      (включая незавершённые диалоги и заметки), «📂» — загружает его обратно: нужно,
+      если чистишь браузер, переносишь пак на другой компьютер или размечаешь с двух машин.
+    </p>
+    <button class="iconbtn" style="margin-top:12px" onclick="document.getElementById('hotkeys-modal').style.display='none'">Закрыть (Esc)</button>
+  </div>
+</div>
+
+<div id="resume-banner">
+  <b>↩ Продолжаем с места остановки.</b> <span id="resume-text"></span>
+  <button class="iconbtn" style="margin-left:10px" id="btn-resume-ok">Ок</button>
+</div>
+
+<div id="break-banner">
+  <b>☕ Пора размяться.</b> Размечено ещё 50 диалогов — усталость портит золото.
+  Заодно сохрани прогресс: «💾».
+  <button class="iconbtn" style="margin-left:10px" id="btn-break-ok">Ещё 5 — и пойду</button>
+</div>
+
+<div id="done-banner">
+  <h3 style="margin:0 0 8px">🎉 Всё размечено</h3>
+  <div style="color:var(--ink2)">Не забудь «⬇ CSV» — экспортируй результат.</div>
+  <button class="iconbtn" style="margin-top:12px" id="btn-done-close">Закрыть</button>
+</div>
+
+<pre id="selftest-out"></pre>
+
+<script>
+"use strict";
+const PACK = __PACK_JSON__;
+const SUBS = ["phishing_link", "money_request", "other"];
+const STORE_KEY = "annpack:" + PACK.pack_id;
+const IDLE_CAP_SEC = 600;   // максимум учитываемого времени за один визит в диалог
+
+// ── состояние ──
+// full_view=true — весь диалог виден сразу (быстрее, но нарушает последовательное
+// раскрытие: онсет ставится, когда конец диалога уже прочитан → hindsight bias).
+// Режим на момент разметки пишется в CSV колонкой view_mode (full | seq).
+let state = { annotations: {}, meta: { lastChangeAt: 0, exportedAt: 0, full_view: true } };
+// доступен ли localStorage (в некоторых браузерах на file:// — нет): если нет,
+// разметка живёт только в памяти вкладки и спасает только «💾 прогресс»
+const STORAGE_OK = (() => {
+  try { localStorage.setItem("annpack:probe", "1"); localStorage.removeItem("annpack:probe"); return true; }
+  catch (e) { return false; }
+})();
+try {
+  const raw = localStorage.getItem(STORE_KEY);
+  if (raw) state = JSON.parse(raw);
+} catch (e) { /* localStorage недоступен — работаем в памяти */ }
+if (state.meta.full_view === undefined) state.meta.full_view = true;
+
+function persist() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {}
+}
+function touch() { state.meta.lastChangeAt = Date.now(); persist(); updateTopbar(); }
+
+function blankAnn() {
+  return {
+    is_scam: null, subtypes: [], onset: null, hard_negative: 0, doubt: 0,
+    note: "", time_spent_sec: 0, annotated_at: null, revealed: 1, done: false,
+    saw_full: false,
+  };
+}
+
+function ann(pid) {
+  if (!state.annotations[pid]) state.annotations[pid] = blankAnn();
+  return state.annotations[pid];
+}
+const isDone = pid => !!(state.annotations[pid] && state.annotations[pid].done);
+
+// ── текущий диалог ──
+let cur = 0;
+{
+  const firstOpen = PACK.dialogs.findIndex(d => !isDone(d.pid));
+  cur = firstOpen === -1 ? 0 : firstOpen;
+}
+let activeStart = Date.now();
+const sessionStart = Date.now();
+let sessionDone = 0;
+const sessionTimes = [];   // time_spent завершённых в ЭТОЙ сессии — для ETA
+
+function dlg() { return PACK.dialogs[cur]; }
+function a() { return ann(dlg().pid); }
+function fullView() { return !!state.meta.full_view; }
+// сколько реплик показано сейчас: в полном режиме — все
+function shown() { return fullView() ? dlg().turns.length : a().revealed; }
+function allRevealed() { return shown() >= dlg().turns.length; }
+
+function flushTime() {
+  const d = Math.min(IDLE_CAP_SEC, (Date.now() - activeStart) / 1000);
+  a().time_spent_sec = Math.round((a().time_spent_sec + d) * 10) / 10;
+  activeStart = Date.now();
+}
+
+// ── рендер диалога ──
+const $ = id => document.getElementById(id);
+
+function renderTurn(t) {
+  const el = document.createElement("div");
+  el.className = "turn " + t.role + (a().onset === t.i ? " onset" : "");
+  el.dataset.i = t.i;
+  const side = t.role === "atk" ? "A" : "B";
+  el.innerHTML = `<div class="who"><span class="side">${side}</span> #${t.i}</div>` +
+                 `<div class="txt"></div>`;
+  el.querySelector(".txt").textContent = t.text;
+  if (t.role === "atk") {
+    el.title = "Онсет здесь (клик)";
+    el.addEventListener("click", () => clickOnset(t.i));
+  }
+  return el;
+}
+
+function renderDialog() {
+  activeStart = Date.now();
+  const d = dlg(), an = a();
+  $("dlg-header").innerHTML =
+    `<b>Диалог ${cur + 1}</b> из ${PACK.dialogs.length}` +
+    (an.done ? ` · <span style="color:var(--green)">✓ размечен</span>` : "") +
+    (an.doubt ? ` · <span style="color:var(--warn-bd)">⚑ сомневаюсь</span>` : "");
+  const box = $("turns");
+  box.innerHTML = "";
+  if (fullView()) an.saw_full = true;
+  d.turns.slice(0, shown()).forEach(t => box.appendChild(renderTurn(t)));
+  syncPanel();
+  window.scrollTo(0, 0);
+}
+
+function setFullView(on) {
+  state.meta.full_view = !!on;
+  persist();
+  document.body.classList.toggle("fullview", fullView());
+  $("btn-mode").textContent = fullView() ? "👁 весь текст" : "▸ по одной";
+  $("btn-mode").classList.toggle("seq", !fullView());
+  $("atk-hint").textContent = fullView()
+    ? "Клик по реплике A (атакующего) = «онсет здесь». Повторный клик — снять. Диалог показан целиком (F — переключить на раскрытие по одной реплике)."
+    : "Клик по реплике A (атакующего) = «онсет здесь». Повторный клик — снять. Не читай диалог заранее: раскрывай по одной реплике (Space).";
+  renderDialog();
+}
+
+function reveal() {
+  const an = a();
+  if (fullView() || an.revealed >= dlg().turns.length) return;
+  an.revealed += 1;
+  const t = dlg().turns[an.revealed - 1];
+  $("turns").appendChild(renderTurn(t));
+  t && $("turns").lastChild.scrollIntoView({ block: "nearest" });
+  touch();
+  syncPanel();
+}
+
+// ── метки ──
+function clickOnset(i) {
+  const an = a();
+  if (an.onset === i) {
+    an.onset = null;
+  } else {
+    an.onset = i;
+    an.is_scam = 1;                      // онсет ⇒ scam (консистентность v1.2)
+    an.hard_negative = 0;
+  }
+  an.done = false;
+  touch();
+  document.querySelectorAll("#turns .turn").forEach(el => {
+    el.classList.toggle("onset", Number(el.dataset.i) === an.onset);
+  });
+  syncPanel();
+}
+
+function setScam() {
+  const an = a();
+  an.is_scam = 1; an.hard_negative = 0; an.done = false;
+  touch(); syncPanel();
+}
+
+function setBenign() {
+  if (!allRevealed()) { flashEl($("btn-benign")); hint("Benign можно ставить только дочитав диалог до конца."); return; }
+  const an = a();
+  an.is_scam = 0;
+  an.subtypes = [];                      // BENIGN очищает subtypes и t*
+  an.onset = null;
+  an.done = false;
+  touch();
+  document.querySelectorAll("#turns .turn.onset").forEach(el => el.classList.remove("onset"));
+  syncPanel();
+}
+
+function toggleSub(idx) {
+  const an = a();
+  if (an.is_scam !== 1) { flashEl($("subtypes")); return; }
+  const s = SUBS[idx];
+  an.subtypes = an.subtypes.includes(s)
+    ? an.subtypes.filter(x => x !== s)
+    : [...an.subtypes, s].sort((x, y) => SUBS.indexOf(x) - SUBS.indexOf(y));
+  an.done = false;
+  touch(); syncPanel();
+}
+
+function toggleHardNeg() {
+  const an = a();
+  if (an.is_scam !== 0) { flashEl($("hn-row")); return; }
+  an.hard_negative = an.hard_negative ? 0 : 1;
+  an.done = false;
+  touch(); syncPanel();
+}
+
+function toggleDoubt() {
+  const an = a();
+  an.doubt = an.doubt ? 0 : 1;
+  touch(); syncPanel(); renderHeaderOnly();
+}
+
+function renderHeaderOnly() {
+  const an = a();
+  $("dlg-header").innerHTML =
+    `<b>Диалог ${cur + 1}</b> из ${PACK.dialogs.length}` +
+    (an.done ? ` · <span style="color:var(--green)">✓ размечен</span>` : "") +
+    (an.doubt ? ` · <span style="color:var(--warn-bd)">⚑ сомневаюсь</span>` : "");
+}
+
+// ── консистентность v1.2 (мягкая подсветка) ──
+function problems() {
+  const an = a(), out = [];
+  if (an.is_scam === null) out.push("Поставь SCAM или BENIGN.");
+  if (an.is_scam === 1 && !an.onset) out.push("SCAM требует t* — кликни реплику A с первым обманом.");
+  if (an.is_scam === 1 && an.subtypes.length === 0) out.push("SCAM требует хотя бы один подтип.");
+  if (an.is_scam === 0 && !allRevealed()) out.push("Benign — только после всех реплик.");
+  return out;
+}
+
+function hint(msg) { $("consistency-hint").textContent = msg || ""; }
+
+function flashEl(el) { el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); }
+
+// ── панель ──
+function syncPanel() {
+  const an = a();
+  $("btn-scam").classList.toggle("active", an.is_scam === 1);
+  $("btn-benign").classList.toggle("active", an.is_scam === 0);
+  $("btn-benign").disabled = !allRevealed() && an.is_scam !== 0;
+  $("subtypes").disabled = an.is_scam !== 1;
+  document.querySelectorAll("#subtypes input").forEach(cb => {
+    cb.checked = an.subtypes.includes(cb.dataset.sub);
+  });
+  const t = an.onset;
+  $("onset-val").textContent = t ? t : "—";
+  $("onset-hint").textContent = t ? "(клик по реплике — переставить)" : (an.is_scam === 1 ? "кликни реплику A" : "");
+  $("onset-display").classList.toggle("softwarn", an.is_scam === 1 && !t);
+  $("subtypes").classList.toggle("softwarn", an.is_scam === 1 && an.subtypes.length === 0);
+  $("hard-neg").checked = !!an.hard_negative;
+  $("hard-neg").disabled = an.is_scam !== 0;
+  $("doubt").checked = !!an.doubt;
+  if ($("note").value !== an.note) $("note").value = an.note;
+  const probs = problems();
+  hint(an.is_scam === null ? "" : probs[0] || "");
+  $("btn-save").disabled = false;
+  $("btn-reveal").disabled = allRevealed();
+  $("reveal-count").textContent = `реплика ${shown()} / ${dlg().turns.length}`;
+  $("pos-text").textContent = `${cur + 1} / ${PACK.dialogs.length}`;
+  updateTopbar();
+}
+
+// ── прогресс / ETA ──
+function fmtDur(sec) {
+  if (!isFinite(sec)) return "—";
+  const m = Math.round(sec / 60);
+  return m < 60 ? `≈ ${m} мин` : `≈ ${Math.floor(m / 60)} ч ${m % 60} мин`;
+}
+function updateTopbar() {
+  const total = PACK.dialogs.length;
+  const done = PACK.dialogs.filter(d => isDone(d.pid)).length;
+  const pct = Math.round(100 * done / total);
+  let eta = "";
+  if (sessionTimes.length >= 3 && done < total) {
+    const avg = sessionTimes.reduce((x, y) => x + y, 0) / sessionTimes.length;
+    eta = ` · осталось ${fmtDur(avg * (total - done))}`;
+  }
+  $("progress-text").textContent = `размечено ${done} / ${total} (${pct}%)${eta}`;
+  $("progress-fill").style.width = pct + "%";
+  $("btn-export").classList.toggle("dirty", state.meta.lastChangeAt > state.meta.exportedAt);
+}
+
+// ── сохранение / навигация ──
+function goto(idx) {
+  if (idx < 0 || idx >= PACK.dialogs.length) return;
+  flushTime(); persist();
+  cur = idx;
+  renderDialog();
+}
+
+function saveAndNext() {
+  const an = a();
+  const probs = problems();
+  if (probs.length) {
+    hint(probs[0]);
+    flashEl(an.is_scam === null ? $("btn-scam").parentElement
+      : an.is_scam === 1 && !an.onset ? $("onset-display")
+      : an.is_scam === 1 ? $("subtypes") : $("btn-benign"));
+    return;
+  }
+  flushTime();
+  const firstDone = !an.done;
+  an.done = true;
+  an.annotated_at = new Date().toISOString();
+  touch();
+  if (firstDone) {
+    sessionDone += 1;
+    sessionTimes.push(an.time_spent_sec);
+    if (sessionDone % 50 === 0) $("break-banner").style.display = "block";
+  }
+  const next = PACK.dialogs.findIndex((d, i) => i > cur && !isDone(d.pid));
+  const wrap = PACK.dialogs.findIndex(d => !isDone(d.pid));
+  if (next !== -1) goto(next);
+  else if (wrap !== -1) goto(wrap);
+  else { $("done-banner").style.display = "block"; updateTopbar(); syncPanel(); }
+}
+
+// ── экспорт CSV ──
+function csvEscape(v) {
+  v = String(v == null ? "" : v);
+  return /[",\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+}
+function exportCSVText() {
+  const rows = [["dialog_id", "is_scam", "subtypes", "onset", "hard_negative",
+                 "doubt", "note", "time_spent_sec", "annotated_at", "view_mode"]];
+  for (const d of PACK.dialogs) {
+    const an = state.annotations[d.pid];
+    if (!an || !an.done) continue;
+    rows.push([d.pid, an.is_scam, an.subtypes.join("|"),
+               an.onset == null ? "" : an.onset, an.hard_negative, an.doubt,
+               an.note, an.time_spent_sec, an.annotated_at,
+               an.saw_full ? "full" : "seq"]);
+  }
+  return rows.map(r => r.map(csvEscape).join(",")).join("\n") + "\n";
+}
+function doExport() {
+  flushTime();
+  const date = new Date().toISOString().slice(0, 10);
+  downloadBlob(exportCSVText(), `annotations_${PACK.split}_${date}.csv`,
+               "text/csv;charset=utf-8");
+  state.meta.exportedAt = Date.now();
+  persist(); updateTopbar();
+}
+
+// ── файл прогресса (продолжить в другой день / другом браузере) ──
+// В отличие от CSV (только готовые метки) сюда попадает ВСЁ состояние:
+// незавершённые диалоги, заметки, время, «сомневаюсь», позиция раскрытия.
+const PROGRESS_FORMAT = "annpack-progress/1";
+
+function downloadBlob(text, filename, mime) {
+  const blob = new Blob([text], { type: mime });
+  const aEl = document.createElement("a");
+  aEl.href = URL.createObjectURL(blob);
+  aEl.download = filename;
+  aEl.click();
+  URL.revokeObjectURL(aEl.href);
+}
+
+function progressJSON() {
+  flushTime(); persist();
+  return JSON.stringify({
+    format: PROGRESS_FORMAT, pack_id: PACK.pack_id, split: PACK.split,
+    saved_at: new Date().toISOString(),
+    n_done: PACK.dialogs.filter(d => isDone(d.pid)).length,
+    n_total: PACK.dialogs.length,
+    annotations: state.annotations, meta: state.meta,
+  });
+}
+
+function saveProgress() {
+  const text = progressJSON();
+  const p = JSON.parse(text);
+  const date = p.saved_at.slice(0, 10);
+  downloadBlob(text, `progress_${PACK.pack_id}_${p.n_done}of${p.n_total}_${date}.json`,
+               "application/json");
+}
+
+function normalizeAnn(o) {
+  const base = blankAnn();
+  if (!o || typeof o !== "object") return base;
+  const subs = Array.isArray(o.subtypes)
+    ? o.subtypes.filter(s => SUBS.includes(s))
+    : String(o.subtypes || "").split("|").filter(s => SUBS.includes(s));
+  const num = (v, d) => (v === "" || v == null || isNaN(Number(v)) ? d : Number(v));
+  return {
+    ...base,
+    is_scam: o.is_scam === 1 || o.is_scam === "1" ? 1
+           : o.is_scam === 0 || o.is_scam === "0" ? 0 : null,
+    subtypes: subs.sort((x, y) => SUBS.indexOf(x) - SUBS.indexOf(y)),
+    onset: num(o.onset, null),
+    hard_negative: num(o.hard_negative, 0) ? 1 : 0,
+    doubt: num(o.doubt, 0) ? 1 : 0,
+    note: String(o.note || ""),
+    time_spent_sec: num(o.time_spent_sec, 0),
+    annotated_at: o.annotated_at || null,
+    revealed: Math.max(1, num(o.revealed, 1)),
+    done: o.done === undefined ? true : !!o.done,   // строка CSV = завершённая метка
+    saw_full: o.saw_full !== undefined ? !!o.saw_full : o.view_mode === "full",
+  };
+}
+
+/** Разбор CSV с кавычками (запятые и переводы строк внутри заметок). */
+function parseCSV(text) {
+  const rows = [];
+  let row = [], field = "", q = false;
+  const s = text.replace(/^﻿/, "");
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (q) {
+      if (c === '"') { if (s[i + 1] === '"') { field += '"'; i++; } else q = false; }
+      else field += c;
+    } else if (c === '"') q = true;
+    else if (c === ",") { row.push(field); field = ""; }
+    else if (c === "\n" || c === "\r") {
+      if (c === "\r" && s[i + 1] === "\n") i++;
+      row.push(field); field = "";
+      if (row.length > 1 || row[0] !== "") rows.push(row);
+      row = [];
+    } else field += c;
+  }
+  row.push(field);
+  if (row.length > 1 || row[0] !== "") rows.push(row);
+  if (!rows.length) return [];
+  const head = rows.shift();
+  return rows.map(r => Object.fromEntries(head.map((h, i) => [h, r[i] ?? ""])));
+}
+
+function mergeAnnotations(incoming) {
+  const known = new Set(PACK.dialogs.map(d => d.pid));
+  let added = 0, updated = 0, kept = 0, foreign = 0;
+  for (const [pid, raw] of Object.entries(incoming)) {
+    if (!known.has(pid)) { foreign++; continue; }
+    const inc = normalizeAnn(raw);
+    const has = state.annotations[pid];
+    if (!has) { state.annotations[pid] = inc; added++; continue; }
+    const t0 = Date.parse(has.annotated_at || "") || 0;
+    const t1 = Date.parse(inc.annotated_at || "") || 0;
+    // берём более позднюю разметку; при прочих равных — завершённую
+    if (t1 > t0 || (t1 === t0 && !has.done && inc.done)) {
+      state.annotations[pid] = inc; updated++;
+    } else kept++;
+  }
+  return { added, updated, kept, foreign };
+}
+
+function loadProgressText(text, filename, silent) {
+  const say = m => { if (!silent) alert(m); };
+  let incoming = null, packId = null;
+  if (/^\s*\{/.test(text)) {
+    let obj;
+    try { obj = JSON.parse(text); } catch (e) { say("Файл не читается как JSON."); return null; }
+    if (!obj || typeof obj.annotations !== "object") {
+      say("Это не файл прогресса (нет поля annotations)."); return null;
+    }
+    incoming = obj.annotations; packId = obj.pack_id || null;
+  } else {
+    const rows = parseCSV(text);
+    if (!rows.length || !("dialog_id" in rows[0])) {
+      say("Это не CSV разметки (нет колонки dialog_id)."); return null;
+    }
+    incoming = Object.fromEntries(rows.map(r => [r.dialog_id, r]));
+  }
+  if (packId && packId !== PACK.pack_id && !silent &&
+      !confirm(`Файл от пака «${packId}», открыт «${PACK.pack_id}». Всё равно загрузить?`)) return null;
+
+  const r = mergeAnnotations(incoming);
+  if (r.foreign && !r.added && !r.updated) {
+    say(`Ни один id из файла не совпал с паком (${r.foreign} чужих). ` +
+        `Возможно, это CSV с уже подставленными реальными id корпуса.`);
+    return r;
+  }
+  state.meta.lastChangeAt = Date.now();
+  persist();
+  const firstOpen = PACK.dialogs.findIndex(d => !isDone(d.pid));
+  cur = firstOpen === -1 ? 0 : firstOpen;
+  renderDialog(); updateTopbar();
+  say(`Загружено из «${filename}»: новых ${r.added}, обновлено ${r.updated}, ` +
+      `оставлено своих ${r.kept}${r.foreign ? `, пропущено чужих ${r.foreign}` : ""}.`);
+  return r;
+}
+
+$("file-input").addEventListener("change", e => {
+  const f = e.target.files && e.target.files[0];
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = () => loadProgressText(String(reader.result), f.name);
+  reader.readAsText(f, "utf-8");
+  e.target.value = "";   // тот же файл можно выбрать повторно
+});
+
+// ── горячие клавиши ──
+document.addEventListener("keydown", e => {
+  const inField = /^(TEXTAREA|INPUT)$/.test(e.target.tagName);
+  if (e.key === "Escape") {
+    $("hotkeys-modal").style.display = "none";
+    if (inField) e.target.blur();
+    return;
+  }
+  if (inField) return;
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  switch (e.key) {
+    case " ": e.preventDefault(); reveal(); break;
+    case "s": case "S": case "ы": case "Ы": setScam(); break;
+    case "b": case "B": case "и": case "И": setBenign(); break;
+    case "1": toggleSub(0); break;
+    case "2": toggleSub(1); break;
+    case "3": toggleSub(2); break;
+    case "f": case "F": case "а": case "А": setFullView(!fullView()); break;
+    case "h": case "H": case "р": case "Р": toggleHardNeg(); break;
+    case "d": case "D": case "в": case "В": toggleDoubt(); break;
+    case "Enter": e.preventDefault(); saveAndNext(); break;
+    case "ArrowLeft": goto(cur - 1); break;
+    case "ArrowRight": goto(cur + 1); break;
+    case "?": {
+      const m = $("hotkeys-modal");
+      m.style.display = m.style.display === "block" ? "none" : "block";
+      break;
+    }
+  }
+});
+
+// ── обвязка UI ──
+$("btn-reveal").addEventListener("click", reveal);
+$("btn-mode").addEventListener("click", () => setFullView(!fullView()));
+$("btn-scam").addEventListener("click", setScam);
+$("btn-benign").addEventListener("click", setBenign);
+document.querySelectorAll("#subtypes input").forEach((cb, i) =>
+  cb.addEventListener("change", () => toggleSub(i)));
+$("hard-neg").addEventListener("change", toggleHardNeg);
+$("doubt").addEventListener("change", toggleDoubt);
+$("note").addEventListener("input", () => { a().note = $("note").value; touch(); });
+$("btn-save").addEventListener("click", saveAndNext);
+$("btn-prev").addEventListener("click", () => goto(cur - 1));
+$("btn-next").addEventListener("click", () => goto(cur + 1));
+$("btn-export").addEventListener("click", doExport);
+$("btn-save-progress").addEventListener("click", saveProgress);
+$("btn-load-progress").addEventListener("click", () => $("file-input").click());
+$("btn-resume-ok").addEventListener("click", () => { $("resume-banner").style.display = "none"; });
+$("btn-hotkeys").addEventListener("click", () => { $("hotkeys-modal").style.display = "block"; });
+$("btn-break-ok").addEventListener("click", () => { $("break-banner").style.display = "none"; });
+$("btn-done-close").addEventListener("click", () => { $("done-banner").style.display = "none"; });
+// снять фокус после клика — иначе Space/Enter повторно «нажмут» кнопку/чекбокс
+document.addEventListener("click", e => {
+  const el = e.target.closest && e.target.closest("button, input[type=checkbox]");
+  if (el) el.blur();
+});
+
+// ── тема ──
+const THEME_KEY = "annpack-theme";
+function applyTheme(t) { document.documentElement.dataset.theme = t; }
+{
+  let t = null;
+  try { t = localStorage.getItem(THEME_KEY); } catch (e) {}
+  if (!t) t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  applyTheme(t);
+}
+$("btn-theme").addEventListener("click", () => {
+  const t = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+  applyTheme(t);
+  try { localStorage.setItem(THEME_KEY, t); } catch (e) {}
+});
+
+// ── предупреждение о несохранённом экспорте ──
+window.addEventListener("beforeunload", e => {
+  flushTime(); persist();
+  if (state.meta.lastChangeAt > state.meta.exportedAt) {
+    e.preventDefault();
+    e.returnValue = "Есть неэкспортированные метки — сначала «⬇ CSV» или «💾 прогресс».";
+  }
+});
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) { flushTime(); persist(); }
+  else activeStart = Date.now();
+});
+
+// ── самотест (?selftest=N): программная разметка через DOM-события ──
+function key(k) {
+  document.dispatchEvent(new KeyboardEvent("keydown", { key: k, bubbles: true }));
+}
+function revealAllViaSpace() {
+  let guard = 0;
+  while (!allRevealed() && guard++ < 50) key(" ");
+}
+function clickTurnEl(i) {
+  const el = document.querySelector(`#turns .turn[data-i="${i}"]`);
+  if (el) el.click();
+}
+window.__selftest = function (n) {
+  const report = [];
+  for (let k = 0; k < Math.min(n, PACK.dialogs.length); k++) {
+    setFullView(k % 3 !== 2);   // 2 диалога в полном режиме, 3-й — по одной реплике
+    goto(k);
+    // saw_full «липкий» (диалог мог мелькнуть в полном режиме при переходе);
+    // в самотесте нормализуем — иначе seq-ветка не видна в колонке view_mode
+    a().saw_full = fullView();
+    const d = dlg();
+    const atk = d.turns.filter(t => t.role === "atk").map(t => t.i);
+    if (k % 2 === 1 || atk.length === 0) {           // benign-сценарий
+      revealAllViaSpace();
+      key("b"); key("h"); key("d");
+      $("note").value = "selftest benign"; $("note").dispatchEvent(new Event("input"));
+      key("Enter");
+    } else {                                          // scam-сценарий
+      const target = atk[0];
+      let guard = 0;
+      while (!fullView() && a().revealed < target && guard++ < 50) key(" ");
+      clickTurnEl(target);
+      key("2"); key("3");
+      key("Enter");
+    }
+    report.push(d.pid);
+  }
+  const csv = exportCSVText();
+
+  // круг «сохранил прогресс → потерял localStorage → загрузил обратно»
+  const snap = progressJSON();
+  const doneBefore = PACK.dialogs.filter(d => isDone(d.pid)).length;
+  state.annotations = {}; persist();
+  const rJson = loadProgressText(snap, "selftest.json", true);
+  const jsonOK = exportCSVText() === csv &&
+                 PACK.dialogs.filter(d => isDone(d.pid)).length === doneBefore;
+
+  // тот же круг через CSV (на случай, если из файлов остался только он)
+  state.annotations = {}; persist();
+  const rCsv = loadProgressText(csv, "selftest.csv", true);
+  const csvOK = exportCSVText() === csv;
+
+  // чужой файл не должен затирать разметку
+  const rForeign = loadProgressText(
+    JSON.stringify({ pack_id: PACK.pack_id, annotations: { "нет-такого-pid": { is_scam: "1" } } }),
+    "foreign.json", true);
+
+  const checks = {
+    json_roundtrip: jsonOK, csv_roundtrip: csvOK,
+    restored_json: (rJson && rJson.added + rJson.updated) || 0,
+    restored_csv: (rCsv && rCsv.added + rCsv.updated) || 0,
+    foreign_skipped: (rForeign && rForeign.foreign) || 0,
+    storage_ok: STORAGE_OK,
+  };
+  $("selftest-out").textContent = "===CSV_BEGIN===\n" + csv + "===CSV_END===\n" +
+    "===CHECKS===" + JSON.stringify(checks) + "===END===";
+  document.title = "SELFTEST-DONE " + report.length;
+  return csv;
+};
+
+// ── старт ──
+setFullView(state.meta.full_view);   // рендерит диалог в актуальном режиме
+updateTopbar();
+if (!STORAGE_OK) $("storage-warn").style.display = "block";
+{
+  // подхватили сохранённую сессию — показываем, откуда продолжаем
+  const done = PACK.dialogs.filter(d => isDone(d.pid)).length;
+  if (done > 0 && done < PACK.dialogs.length) {
+    $("resume-text").textContent =
+      `Размечено ${done} из ${PACK.dialogs.length}, открыт первый неразмеченный — диалог ${cur + 1}. ` +
+      `Резервная копия — кнопка «💾».`;
+    $("resume-banner").style.display = "block";
+  }
+}
+{
+  const p = new URLSearchParams(location.search).get("selftest");
+  if (p) window.__selftest(parseInt(p, 10) || 3);
+}
+</script>
+</body>
+</html>

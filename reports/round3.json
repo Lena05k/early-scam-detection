@@ -1,0 +1,11 @@
+{
+  "is_scam_kappa": 0.8570009930486595,
+  "subtype_macro": 0.7940392940392941,
+  "sub_other": 0.4405594405594407,
+  "onset_alpha": 0.7080745341614907,
+  "onset_agree_pm1": 0.875,
+  "onset_mae": 0.5416666666666666,
+  "n_coscam": 16,
+  "n_items": 24,
+  "n_annotators": 3
+}

@@ -1,0 +1,352 @@
+{
+  "input": "data/corpus/corpus_v1.jsonl",
+  "method": "групповой стратифицированный сплит: рандомизированный жадный поиск (GRASP), минимизация суммарной попарной JSD распределений страт (lang × is_scam × onset_bucket)",
+  "master_seed": 20260721,
+  "n_trials": 1000,
+  "n_valid_trials": 967,
+  "best_trial": 470,
+  "fractions": {
+    "train": 0.7,
+    "val": 0.1,
+    "test": 0.2
+  },
+  "large_group_min_size": 14,
+  "large_groups_placement": {
+    "sg_9f2f3b1a09d6": "train",
+    "sg_7343390c73ab": "test",
+    "sg_4caaa44d74db": "train",
+    "sg_730d7eb1689d": "train"
+  },
+  "jsd_bits": {
+    "total": 0.00019226894209033407,
+    "train_vs_val": 0.00010172929493351923,
+    "train_vs_test": 3.1359630157912595e-05,
+    "val_vs_test": 5.9180016998902244e-05,
+    "per_stratum_train_vs_test": {
+      "en/benign/benign": 1.8529448031308544e-07,
+      "en/scam/t1": 3.6854188546336106e-08,
+      "en/scam/t2_3": 6.91466328505406e-06,
+      "en/scam/t4plus": 1.1061974197314813e-06,
+      "ru/benign/benign": 1.8529448031308544e-07,
+      "ru/scam/t1": 7.185889179066904e-06,
+      "ru/scam/t2_3": 2.7665796533359846e-06,
+      "ru/scam/t4plus": 3.1477616044533335e-08,
+      "zh/benign/benign": 1.8529448031308544e-07,
+      "zh/scam/t1": 8.90011434265996e-07,
+      "zh/scam/t2_3": 3.318592259194471e-06,
+      "zh/scam/t4plus": 8.553481681733519e-06
+    },
+    "per_stratum_train_vs_val": {
+      "en/benign/benign": 7.16946189527497e-07,
+      "en/scam/t1": 4.410666919965806e-06,
+      "en/scam/t2_3": 2.0691919444162064e-05,
+      "en/scam/t4plus": 9.073406580016751e-09,
+      "ru/benign/benign": 7.16946189527497e-07,
+      "ru/scam/t1": 2.299487924149594e-05,
+      "ru/scam/t2_3": 1.5096177719554058e-07,
+      "ru/scam/t4plus": 3.4756862497079986e-05,
+      "zh/benign/benign": 7.16946189527497e-07,
+      "zh/scam/t1": 9.308123239532538e-07,
+      "zh/scam/t2_3": 2.722021974004517e-08,
+      "zh/scam/t4plus": 1.5606060534763874e-05
+    }
+  },
+  "checks": {
+    "no_group_across_splits": {
+      "pass": true,
+      "broken_groups": []
+    },
+    "no_broken_twins": {
+      "pass": true,
+      "broken_twins": []
+    },
+    "proportions": {
+      "pass": true,
+      "sizes": {
+        "train": 1392,
+        "val": 205,
+        "test": 403
+      },
+      "shares": {
+        "train": 0.696,
+        "val": 0.1025,
+        "test": 0.2015
+      },
+      "target": {
+        "train": 0.7,
+        "val": 0.1,
+        "test": 0.2
+      },
+      "tolerance_pp": 2.0
+    },
+    "strata_balance": {
+      "pass": true,
+      "worst_deviation_pp": 0.23,
+      "tolerance_pp": 5.0,
+      "violations": [],
+      "table": {
+        "en/benign/benign": {
+          "global_share": 0.1665,
+          "train": 0.1667,
+          "val": 0.1659,
+          "test": 0.1663
+        },
+        "en/scam/t1": {
+          "global_share": 0.072,
+          "train": 0.0718,
+          "val": 0.0732,
+          "test": 0.072
+        },
+        "en/scam/t2_3": {
+          "global_share": 0.0705,
+          "train": 0.0711,
+          "val": 0.0683,
+          "test": 0.0695
+        },
+        "en/scam/t4plus": {
+          "global_share": 0.0245,
+          "train": 0.0244,
+          "val": 0.0244,
+          "test": 0.0248
+        },
+        "ru/benign/benign": {
+          "global_share": 0.1665,
+          "train": 0.1667,
+          "val": 0.1659,
+          "test": 0.1663
+        },
+        "ru/scam/t1": {
+          "global_share": 0.066,
+          "train": 0.0654,
+          "val": 0.0683,
+          "test": 0.067
+        },
+        "ru/scam/t2_3": {
+          "global_share": 0.0785,
+          "train": 0.0783,
+          "val": 0.078,
+          "test": 0.0794
+        },
+        "ru/scam/t4plus": {
+          "global_share": 0.0225,
+          "train": 0.0223,
+          "val": 0.0244,
+          "test": 0.0223
+        },
+        "zh/benign/benign": {
+          "global_share": 0.1665,
+          "train": 0.1667,
+          "val": 0.1659,
+          "test": 0.1663
+        },
+        "zh/scam/t1": {
+          "global_share": 0.0725,
+          "train": 0.0726,
+          "val": 0.0732,
+          "test": 0.072
+        },
+        "zh/scam/t2_3": {
+          "global_share": 0.0735,
+          "train": 0.0733,
+          "val": 0.0732,
+          "test": 0.0744
+        },
+        "zh/scam/t4plus": {
+          "global_share": 0.0205,
+          "train": 0.0208,
+          "val": 0.0195,
+          "test": 0.0199
+        }
+      }
+    },
+    "hard_neg_share": {
+      "pass": true,
+      "global_share": 0.3483,
+      "tolerance_pp": 7.0,
+      "by_split": {
+        "train": {
+          "benign": 696,
+          "hard_neg": 238,
+          "share": 0.342
+        },
+        "val": {
+          "benign": 102,
+          "hard_neg": 35,
+          "share": 0.3431
+        },
+        "test": {
+          "benign": 201,
+          "hard_neg": 75,
+          "share": 0.3731
+        }
+      }
+    },
+    "scenario_coverage": {
+      "pass": true,
+      "n_scenarios": 19,
+      "missing_in_train": [],
+      "missing_in_val": [],
+      "missing_in_test": []
+    },
+    "text_leakage_train_test": {
+      "pass": true,
+      "pairs_checked": 14137,
+      "leaks": []
+    }
+  },
+  "composition": {
+    "by_split": {
+      "train": {
+        "n": 1392,
+        "lang": {
+          "en": 465,
+          "zh": 464,
+          "ru": 463
+        },
+        "scam": 696,
+        "benign": 696,
+        "hard_neg": 238,
+        "onset_bucket": {
+          "benign": 696,
+          "t1": 292,
+          "t4plus": 94,
+          "t2_3": 310
+        },
+        "mean_turns": 10.06
+      },
+      "val": {
+        "n": 205,
+        "lang": {
+          "en": 68,
+          "zh": 68,
+          "ru": 69
+        },
+        "scam": 103,
+        "benign": 102,
+        "hard_neg": 35,
+        "onset_bucket": {
+          "t1": 44,
+          "benign": 102,
+          "t2_3": 45,
+          "t4plus": 14
+        },
+        "mean_turns": 10.16
+      },
+      "test": {
+        "n": 403,
+        "lang": {
+          "en": 134,
+          "zh": 134,
+          "ru": 135
+        },
+        "scam": 202,
+        "benign": 201,
+        "hard_neg": 75,
+        "onset_bucket": {
+          "t2_3": 90,
+          "benign": 201,
+          "t1": 85,
+          "t4plus": 27
+        },
+        "mean_turns": 9.89
+      }
+    },
+    "scenario_x_split": {
+      "emotional_benign": {
+        "train": 232,
+        "val": 33,
+        "test": 59
+      },
+      "fake_job": {
+        "train": 59,
+        "val": 9,
+        "test": 16
+      },
+      "honest_marketing": {
+        "train": 55,
+        "val": 7,
+        "test": 10
+      },
+      "impersonation_bank": {
+        "train": 65,
+        "val": 6,
+        "test": 13
+      },
+      "impersonation_boss": {
+        "train": 62,
+        "val": 5,
+        "test": 17
+      },
+      "impersonation_gov": {
+        "train": 61,
+        "val": 8,
+        "test": 15
+      },
+      "impersonation_relative": {
+        "train": 61,
+        "val": 8,
+        "test": 15
+      },
+      "impersonation_support": {
+        "train": 52,
+        "val": 15,
+        "test": 17
+      },
+      "investment": {
+        "train": 59,
+        "val": 11,
+        "test": 14
+      },
+      "ordinary_request": {
+        "train": 226,
+        "val": 34,
+        "test": 67
+      },
+      "phishing": {
+        "train": 56,
+        "val": 10,
+        "test": 18
+      },
+      "prize": {
+        "train": 62,
+        "val": 7,
+        "test": 12
+      },
+      "real_2fa": {
+        "train": 36,
+        "val": 4,
+        "test": 29
+      },
+      "real_bank_notice": {
+        "train": 54,
+        "val": 5,
+        "test": 10
+      },
+      "real_delivery": {
+        "train": 48,
+        "val": 9,
+        "test": 12
+      },
+      "real_support": {
+        "train": 45,
+        "val": 10,
+        "test": 14
+      },
+      "refund": {
+        "train": 53,
+        "val": 8,
+        "test": 20
+      },
+      "romance": {
+        "train": 61,
+        "val": 9,
+        "test": 14
+      },
+      "tech_support": {
+        "train": 45,
+        "val": 7,
+        "test": 31
+      }
+    }
+  }
+}

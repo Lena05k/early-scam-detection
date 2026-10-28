@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Независимая разметка — IAA раунд 2</title>
+<style>
+  :root {
+    --bg: #f6f5f2; --card: #ffffff; --ink: #1d1d1f; --ink2: #46464a; --muted: #6b6b70;
+    --line: #dedcd6; --a: #b23a2e; --a-bg: #fdf1ef; --b: #2f5d8c; --b-bg: #f0f4f9;
+    --yes: #a6342a; --no: #2b6b4f; --warn: #8a6d1f; --warn-bg: #fcf6e4;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font: 16px/1.55 -apple-system, "Helvetica Neue", "Segoe UI", "PingFang SC",
+          "Noto Sans CJK SC", Arial, sans-serif;
+    padding-bottom: 300px;
+  }
+  header {
+    position: sticky; top: 0; z-index: 10; background: var(--card);
+    border-bottom: 1px solid var(--line); padding: 12px 26px 10px;
+  }
+  .bar { height: 6px; background: #e8e6e0; border-radius: 3px; overflow: hidden; margin-bottom: 11px; }
+  .bar > i { display: block; height: 100%; background: #56585c; width: 0; transition: width .18s; }
+  .toprow { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+  .counter { font-size: 19px; font-weight: 600; white-space: nowrap; }
+  .pid { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13px; color: var(--muted); }
+  .stats { margin-left: auto; font-size: 14px; color: var(--muted); white-space: nowrap; }
+  .stats b { color: var(--ink); font-weight: 600; }
+  .tag {
+    background: #f1efea; border: 1px solid var(--line); border-radius: 999px;
+    padding: 2px 11px; font-size: 13px; color: #3c3c40;
+  }
+  .tag.done { background: #2b6b4f; border-color: #2b6b4f; color: #fff; }
+  .tag.mode { background: #eef1f6; border-color: #ccd6e4; color: #2f5d8c; cursor: pointer; }
+
+  main { max-width: 880px; margin: 22px auto 0; padding: 0 22px; }
+  .turn {
+    display: grid; grid-template-columns: 30px 1fr; gap: 13px;
+    padding: 11px 15px; margin-bottom: 8px; background: var(--card);
+    border: 1px solid var(--line); border-left: 4px solid var(--line); border-radius: 8px;
+  }
+  .turn.atk { border-left-color: var(--a); background: var(--a-bg); cursor: pointer; }
+  .turn.tgt { border-left-color: var(--b); background: var(--b-bg); }
+  .turn.atk:hover { border-color: var(--a); border-style: dashed; }
+  .turn.onset { outline: 3px solid var(--a); outline-offset: 1px; }
+  .num { color: var(--muted); font-size: 14px; text-align: right; padding-top: 3px;
+         font-variant-numeric: tabular-nums; }
+  .who { font-size: 12px; letter-spacing: .05em; text-transform: uppercase;
+         font-weight: 600; margin-bottom: 3px; }
+  .turn.atk .who { color: var(--a); } .turn.tgt .who { color: var(--b); }
+  .txt { font-size: 17px; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; }
+  .onset-mark { float: right; font-size: 12px; color: var(--a); font-weight: 600;
+                text-transform: none; letter-spacing: 0; }
+  #reveal { text-align: center; margin: 14px 0 4px; }
+  .hint { font-size: 13px; color: var(--muted); }
+
+  footer {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: var(--card);
+    border-top: 1px solid var(--line); padding: 12px 26px 14px;
+  }
+  .frow { display: flex; gap: 10px; align-items: center; justify-content: center;
+          flex-wrap: wrap; max-width: 880px; margin: 0 auto 9px; }
+  .flabel { font-size: 13px; color: var(--muted); min-width: 74px; text-align: right; }
+  button {
+    font: inherit; cursor: pointer; border-radius: 8px; border: 1px solid var(--line);
+    background: #f4f2ee; color: var(--ink); padding: 9px 15px;
+  }
+  button:hover { background: #eae7e1; }
+  button.big { font-size: 16px; font-weight: 600; color: #fff; border: none; padding: 11px 22px; }
+  button.yes { background: var(--yes); } button.no { background: var(--no); }
+  button.big:hover { filter: brightness(1.08); }
+  button.on { outline: 3px solid #1d1d1f; outline-offset: 2px; }
+  button.sub.on { background: #1d1d1f; color: #fff; border-color: #1d1d1f; }
+  button:disabled { opacity: .42; cursor: not-allowed; }
+  kbd { font: 12px ui-monospace, Menlo, monospace; background: rgba(255,255,255,.28);
+        border-radius: 4px; padding: 1px 5px; margin-left: 6px; }
+  button:not(.big) kbd { background: #e2dfd8; }
+  input[type=text] {
+    flex: 1; font: inherit; padding: 8px 11px; border: 1px solid var(--line);
+    border-radius: 8px; background: #fbfaf8; max-width: 560px;
+  }
+  input[type=text]:focus { outline: 2px solid #56585c; outline-offset: -1px; }
+  #warn { max-width: 880px; margin: 0 auto 8px; padding: 7px 12px; border-radius: 8px;
+          background: var(--warn-bg); border: 1px solid #e6d7a8; color: var(--warn);
+          font-size: 14px; display: none; }
+  #warn.show { display: block; }
+  .foot-hint { text-align: center; font-size: 12.5px; color: var(--muted); margin-top: 8px; }
+  #toast { position: fixed; bottom: 320px; left: 50%; transform: translateX(-50%);
+    background: #1d1d1f; color: #fff; padding: 9px 18px; border-radius: 8px;
+    font-size: 14px; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 20; }
+  #toast.show { opacity: .94; }
+  #done { text-align: center; padding: 36px 20px; font-size: 17px; color: var(--muted); }
+  details.guide { max-width: 880px; margin: 14px auto 0; padding: 0 22px; font-size: 14px;
+                  color: var(--ink2); }
+  details.guide summary { cursor: pointer; color: var(--muted); }
+  details.guide li { margin-bottom: 4px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="bar"><i id="bar"></i></div>
+  <div class="toprow">
+    <span class="counter" id="counter">— из —</span>
+    <span class="pid" id="pid"></span>
+    <span class="tag" id="tag-done" style="display:none">размечен</span>
+    <span class="tag mode" id="tag-mode" onclick="toggleMode()" title="Переключить режим просмотра (F)"></span>
+    <span class="stats" id="stats"></span>
+  </div>
+</header>
+
+<main id="dialog"></main>
+<div id="reveal"></div>
+
+<details class="guide">
+  <summary>Правила v1.2 — коротко (развернуть)</summary>
+  <ul>
+    <li><b>is_scam = 1</b>, если сторона <b>обманывает</b> (ложная легенда, личность,
+        выдуманная выгода или угроза), чтобы подтолкнуть другую к действию во вред ей.
+        Медленная манипуляция через выдуманные отношения — тоже скам.</li>
+    <li><b>benign</b>: нет ложной легенды И не просят сделать опасное в пользу отправителя —
+        даже если есть деньги, ссылка, срочность или тревожный тон.</li>
+    <li><b>Онсет</b> — номер первой реплики стороны <b>A</b>, где обман присутствует в тексте.
+        Правило 1: ложная личность как факт — уже онсет, до просьбы. Правило 2: при медленном
+        заходе онсет — первая непроверяемая легенда, не эмоция в начале и не просьба денег
+        в конце. Приветствие и эмоции — не онсет.</li>
+    <li><b>Подтипы:</b> phishing_link — ведут по ссылке за данными/оплатой;
+        money_request — просят перевод/оплату/комиссию; other — обман через роль или сценарий
+        (банк, госорган, родственник, начальник, романтика, инвестиции, фейк-вакансия,
+        tech-support). Деньги <b>через</b> роль — ставь и money_request, и other.</li>
+    <li><b>Консистентность:</b> is_scam=1 ⇒ хотя бы один подтип; is_scam=0 ⇒ подтипы пусты
+        и онсет пуст.</li>
+  </ul>
+</details>
+
+<footer>
+  <div id="warn"></div>
+  <div class="frow">
+    <span class="flabel">Это скам?</span>
+    <button class="big yes" id="bYes" onclick="setScam(1)">Да — скам<kbd>Y</kbd></button>
+    <button class="big no"  id="bNo"  onclick="setScam(0)">Нет — benign<kbd>N</kbd></button>
+  </div>
+  <div class="frow">
+    <span class="flabel">Подтипы</span>
+    <button class="sub" id="sPhish" onclick="toggleSub('phishing_link')">phishing_link<kbd>1</kbd></button>
+    <button class="sub" id="sMoney" onclick="toggleSub('money_request')">money_request<kbd>2</kbd></button>
+    <button class="sub" id="sOther" onclick="toggleSub('other')">other<kbd>3</kbd></button>
+  </div>
+  <div class="frow">
+    <span class="flabel">Онсет t*</span>
+    <span id="onsetLabel" class="hint">кликни реплику A выше</span>
+    <button onclick="clearOnset()">Сбросить<kbd>0</kbd></button>
+    <button class="sub" id="bDoubt" onclick="toggleDoubt()" title="Пометить как сомнительный">сомневаюсь<kbd>D</kbd></button>
+  </div>
+  <div class="frow">
+    <button onclick="go(-1)">← Назад</button>
+    <input type="text" id="note" placeholder="Заметка (необязательно)" oninput="saveNote(this.value)">
+    <button onclick="go(1)">Вперёд →</button>
+    <button onclick="downloadCsv()">Скачать CSV</button>
+    <button onclick="document.getElementById('file').click()">Загрузить CSV</button>
+    <input type="file" id="file" accept=".csv,text/csv" hidden onchange="uploadCsv(this)">
+  </div>
+  <div class="foot-hint">
+    <b>Y</b> скам · <b>N</b> benign · <b>1/2/3</b> подтипы · <b>0</b> сбросить онсет ·
+    <b>D</b> сомневаюсь · <b>←/→</b> навигация · <b>F</b> режим просмотра ·
+    <b>Esc</b> выйти из заметки. Состояние живёт только в этой вкладке —
+    сохраняйтесь кнопкой «Скачать CSV».
+  </div>
+</footer>
+
+<div id="toast"></div>
+
+<script>
+"use strict";
+// Данные вшиты при сборке. Никаких меток, сценариев и реальных id — только pid и текст.
+const PACK = __DATA__;
+const D = PACK.dialogs;
+const N = D.length;
+const SUBS = ["phishing_link", "money_request", "other"];
+
+// Состояние ТОЛЬКО в памяти вкладки: localStorage/sessionStorage не используются.
+const st = D.map(d => ({
+  pid: d.pid, is_scam: null, subtypes: [], onset: null, doubt: 0, note: "",
+  done: false, saw_full: false, revealed: d.turns.length, spent: 0, at: ""
+}));
+let idx = 0;
+let mode = "full";              // full | seq — режим просмотра, пишется в CSV
+let tick = Date.now();
+
+const a = () => st[idx];
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s)
+  .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+function flushTime() {
+  const now = Date.now();
+  a().spent += (now - tick) / 1000;
+  tick = now;
+}
+
+function visibleTurns() {
+  const d = D[idx];
+  return mode === "full" ? d.turns.length : Math.min(a().revealed, d.turns.length);
+}
+
+function render() {
+  const d = D[idx], s = a();
+  if (mode === "full") s.saw_full = true;
+  const nvis = visibleTurns();
+
+  $("counter").textContent = `${idx + 1} из ${N}`;
+  $("pid").textContent = d.pid;
+  $("tag-done").style.display = s.done ? "" : "none";
+  $("tag-mode").textContent = mode === "full" ? "режим: весь текст" : "режим: по репликам";
+  const done = st.filter(x => x.done).length;
+  $("stats").innerHTML = `размечено <b>${done}</b> из ${N}`;
+  $("bar").style.width = (100 * done / N).toFixed(1) + "%";
+
+  $("dialog").innerHTML = d.turns.slice(0, nvis).map(t => {
+    const cls = t.role === "atk" ? "atk" : "tgt";
+    const side = t.role === "atk" ? "A" : "B";
+    const on = s.onset === t.i ? " onset" : "";
+    const mark = s.onset === t.i ? '<span class="onset-mark">← онсет t*</span>' : "";
+    const click = t.role === "atk" ? ` onclick="setOnset(${t.i})"` : "";
+    return `<div class="turn ${cls}${on}"${click}>
+      <div class="num">${t.i}</div>
+      <div><div class="who">${side} · ${esc(t.speaker)}${mark}</div>
+      <div class="txt">${esc(t.text)}</div></div></div>`;
+  }).join("");
+
+  const hidden = d.turns.length - nvis;
+  $("reveal").innerHTML = (mode === "seq" && hidden > 0)
+    ? `<button onclick="revealNext()">Показать следующую реплику (${hidden} скрыто)<kbd>Space</kbd></button>
+       <div class="hint" style="margin-top:6px">Онсет ставится по тому, что видно сейчас — вперёд не заглядывать.</div>`
+    : "";
+
+  $("bYes").classList.toggle("on", s.is_scam === 1);
+  $("bNo").classList.toggle("on", s.is_scam === 0);
+  $("bNo").disabled = (mode === "seq" && hidden > 0);   // benign — только увидев весь диалог
+  for (const [id, key] of [["sPhish", "phishing_link"], ["sMoney", "money_request"],
+                           ["sOther", "other"]]) {
+    $(id).classList.toggle("on", s.subtypes.includes(key));
+  }
+  $("bDoubt").classList.toggle("on", !!s.doubt);
+  $("onsetLabel").textContent = s.onset == null
+    ? (s.is_scam === 0 ? "не нужен (benign)" : "кликни реплику A выше")
+    : `реплика ${s.onset}`;
+  $("note").value = s.note;
+  showWarn();
+}
+
+// ── правило консистентности v1.2 (мягко: предупреждаем, не запрещаем) ──
+function issues() {
+  const s = a(), out = [];
+  if (s.is_scam === 1 && s.subtypes.length === 0) out.push("скам без подтипа");
+  if (s.is_scam === 1 && s.onset == null) out.push("скам без онсета");
+  if (s.is_scam === 0 && s.subtypes.length) out.push("benign с подтипом");
+  if (s.is_scam === 0 && s.onset != null) out.push("benign с онсетом");
+  return out;
+}
+function showWarn() {
+  const p = issues();
+  const w = $("warn");
+  w.classList.toggle("show", p.length > 0);
+  if (p.length) w.textContent = "⚠ правило консистентности v1.2: " + p.join("; ");
+}
+function markDone() {
+  const s = a();
+  s.done = s.is_scam !== null && issues().length === 0;
+  if (s.done) s.at = new Date().toISOString();
+}
+
+// ── ввод ──
+function setScam(v) {
+  const s = a();
+  s.is_scam = v;
+  if (v === 0) { s.subtypes = []; s.onset = null; }   // инвариант: benign -> ∅
+  flushTime(); markDone(); render();
+}
+function toggleSub(k) {
+  const s = a();
+  s.subtypes = s.subtypes.includes(k) ? s.subtypes.filter(x => x !== k)
+                                      : SUBS.filter(x => x === k || s.subtypes.includes(x));
+  if (s.subtypes.length && s.is_scam === null) s.is_scam = 1;   // подтип ⇒ скам (v1.2)
+  flushTime(); markDone(); render();
+}
+function setOnset(i) {
+  const s = a();
+  s.onset = (s.onset === i) ? null : i;
+  if (s.onset != null && s.is_scam === null) s.is_scam = 1;   // онсет ⇒ скам (v1.2)
+  flushTime(); markDone(); render();
+}
+function clearOnset() { a().onset = null; flushTime(); markDone(); render(); }
+function toggleDoubt() { a().doubt = a().doubt ? 0 : 1; render(); }
+function saveNote(v) { a().note = v; }
+function revealNext() { a().revealed = Math.min(a().revealed + 1, D[idx].turns.length); render(); }
+function toggleMode() {
+  flushTime();
+  if (mode === "full") { mode = "seq"; for (const s of st) if (!s.done) s.revealed = 1; }
+  else { mode = "full"; }
+  render();
+}
+function go(step) {
+  flushTime();
+  const next = idx + step;
+  if (next < 0 || next >= N) { toast(next < 0 ? "это первый диалог" : "это последний диалог"); return; }
+  idx = next;
+  if (mode === "seq" && !a().done) a().revealed = Math.max(1, a().revealed);
+  render();
+}
+
+document.addEventListener("keydown", e => {
+  const t = e.target.tagName;
+  if (t === "INPUT" || t === "TEXTAREA") { if (e.key === "Escape") e.target.blur(); return; }
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const k = e.key.toLowerCase();
+  if (k === "arrowright") { go(1); e.preventDefault(); }
+  else if (k === "arrowleft") { go(-1); e.preventDefault(); }
+  else if (k === "y") setScam(1);
+  else if (k === "n") { if (!$("bNo").disabled) setScam(0); }
+  else if (k === "1") toggleSub("phishing_link");
+  else if (k === "2") toggleSub("money_request");
+  else if (k === "3") toggleSub("other");
+  else if (k === "0") clearOnset();
+  else if (k === "d") toggleDoubt();
+  else if (k === "f") toggleMode();
+  else if (k === " ") { if (mode === "seq") { revealNext(); e.preventDefault(); } }
+});
+
+// ── CSV: тот же формат, что у пака раунда 1 (dialog_id держит pid) ──
+function csvCell(s) {
+  s = String(s == null ? "" : s);
+  return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+function buildCsv() {
+  flushTime();
+  const rows = [["dialog_id", "is_scam", "subtypes", "onset", "hard_negative",
+                 "doubt", "note", "time_spent_sec", "annotated_at", "view_mode"]];
+  for (const s of st) {
+    if (!s.done) continue;
+    rows.push([s.pid, s.is_scam, s.subtypes.join("|"), s.onset == null ? "" : s.onset,
+               "", s.doubt, s.note, s.spent.toFixed(1), s.at,
+               s.saw_full ? "full" : "seq"]);
+  }
+  return rows.map(r => r.map(csvCell).join(",")).join("\n") + "\n";
+}
+function downloadCsv() {
+  const done = st.filter(s => s.done).length;
+  const blob = new Blob(["﻿" + buildCsv()], {type: "text/csv;charset=utf-8"});
+  const el = document.createElement("a");
+  el.href = URL.createObjectURL(blob);
+  el.download = `iaa_round2_${done}of${N}_${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(el); el.click(); el.remove();
+  setTimeout(() => URL.revokeObjectURL(el.href), 1000);
+  toast(`сохранено ${done} из ${N}`);
+}
+function parseCsv(text) {
+  if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+  const rows = []; let row = [], cell = "", q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) {
+      if (c === '"' && text[i + 1] === '"') { cell += '"'; i++; }
+      else if (c === '"') q = false;
+      else cell += c;
+    } else if (c === '"') q = true;
+    else if (c === ",") { row.push(cell); cell = ""; }
+    else if (c === "\n") { row.push(cell); rows.push(row); row = []; cell = ""; }
+    else if (c !== "\r") cell += c;
+  }
+  if (cell !== "" || row.length) { row.push(cell); rows.push(row); }
+  return rows.filter(r => r.length > 1 || (r[0] || "").trim() !== "");
+}
+function uploadCsv(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const rows = parseCsv(reader.result);
+      const head = rows[0].map(h => h.trim().toLowerCase());
+      const col = name => head.indexOf(name);
+      const ci = col("dialog_id");
+      if (ci < 0) { toast("в файле нет колонки dialog_id"); return; }
+      const byId = new Map(st.map((s, i) => [s.pid, i]));
+      let n = 0, skipped = 0;
+      for (const r of rows.slice(1)) {
+        const i = byId.get((r[ci] || "").trim());
+        if (i === undefined) { skipped++; continue; }
+        const g = name => { const j = col(name); return j < 0 ? "" : (r[j] || "").trim(); };
+        const s = st[i];
+        const sc = g("is_scam");
+        if (sc === "") continue;
+        s.is_scam = Number(sc);
+        s.subtypes = g("subtypes") ? g("subtypes").split("|").filter(x => SUBS.includes(x)) : [];
+        const on = g("onset");
+        s.onset = on === "" ? null : Number(on);
+        s.doubt = g("doubt") === "1" ? 1 : 0;
+        s.note = g("note");
+        s.spent = Number(g("time_spent_sec")) || 0;
+        s.at = g("annotated_at");
+        s.saw_full = g("view_mode") !== "seq";
+        s.revealed = D[i].turns.length;
+        s.done = true;
+        n++;
+      }
+      const first = st.findIndex(s => !s.done);
+      idx = first < 0 ? 0 : first;
+      tick = Date.now();
+      render();
+      toast(`загружено ${n}` + (skipped ? `, пропущено чужих ${skipped}` : ""));
+    } catch (err) {
+      toast("не удалось разобрать CSV: " + err.message);
+      throw err;
+    }
+  };
+  reader.readAsText(file);
+  input.value = "";
+}
+
+function toast(msg) {
+  const el = $("toast");
+  el.textContent = msg; el.classList.add("show");
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => el.classList.remove("show"), 1800);
+}
+
+window.addEventListener("beforeunload", e => {
+  if (st.some(s => s.done)) { e.preventDefault(); e.returnValue = ""; }
+});
+
+// ── самотест: открыть пак с ?selftest=1, результат ложится в <pre id="selftest"> ──
+// Проверяет то, из-за чего пак может молча испортить разметку: круг «разметил ->
+// скачал CSV -> потерял состояние -> загрузил обратно», правило консистентности,
+// оба режима просмотра и отсутствие обращений к хранилищу браузера.
+function runSelfTest() {
+  const log = [];
+  const ok = (name, cond) => log.push((cond ? "PASS " : "FAIL ") + name);
+  try {
+    ok("данные вшиты: 100 диалогов", N === 100);
+    ok("у каждого диалога есть реплика A",
+       D.every(d => d.turns.some(t => t.role === "atk")));
+    ok("в паке нет полей меток",
+       D.every(d => Object.keys(d).sort().join() === "pid,turns"));
+
+    // разметка скама: онсет кликом по A + подтип
+    idx = 0;
+    const firstAtk = D[0].turns.find(t => t.role === "atk").i;
+    setScam(1); toggleSub("money_request"); setOnset(firstAtk);
+    ok("скам размечен и признан завершённым", st[0].done === true);
+    ok("онсет записан", st[0].onset === firstAtk);
+    ok("подтип записан", st[0].subtypes.join() === "money_request");
+
+    // консистентность: benign обязан обнулить подтипы и онсет
+    setScam(0);
+    ok("benign обнулил подтипы и онсет",
+       st[0].subtypes.length === 0 && st[0].onset === null);
+    ok("предупреждения нет при консистентной разметке", issues().length === 0);
+    // скам без подтипа — предупреждение и НЕ done
+    setScam(1);
+    ok("скам без подтипа: предупреждение", issues().length > 0);
+    ok("скам без подтипа: не считается завершённым", st[0].done === false);
+    toggleSub("other"); setOnset(firstAtk);
+
+    // benign во втором диалоге
+    idx = 1; setScam(0);
+    ok("второй диалог размечен", st[1].done === true);
+
+    // круг: CSV -> потеря состояния -> загрузка обратно
+    const csv = buildCsv();
+    const rows = parseCsv(csv);
+    ok("в CSV ровно 2 размеченные строки + шапка", rows.length === 3);
+    ok("шапка CSV как у пака раунда 1",
+       rows[0].join(",") === "dialog_id,is_scam,subtypes,onset,hard_negative,doubt," +
+                             "note,time_spent_sec,annotated_at,view_mode");
+    ok("в CSV уходит pid, а не реальный id", rows[1][0].startsWith("r2_"));
+    const snapshot = st.map(s => JSON.stringify(s));
+    for (const s of st) {                       // «потеряли» всё состояние
+      s.is_scam = null; s.subtypes = []; s.onset = null; s.done = false; s.note = "";
+    }
+    ok("состояние обнулено", st.every(s => !s.done));
+    const blob = new Blob([csv], {type: "text/csv"});
+    const file = new File([blob], "x.csv", {type: "text/csv"});
+    const dt = new DataTransfer(); dt.items.add(file);
+    const input = $("file"); input.files = dt.files;
+    uploadCsv(input);
+    setTimeout(() => {
+      ok("после загрузки CSV восстановлено 2 диалога",
+         st.filter(s => s.done).length === 2);
+      ok("восстановлен онсет", st[0].onset === firstAtk);
+      ok("восстановлены подтипы", st[0].subtypes.join() === "other");
+      ok("восстановлен benign", st[1].is_scam === 0 && st[1].onset === null);
+      ok("чужие pid не ломают загрузку",
+         (() => { try { const r = parseCsv(
+             "dialog_id,is_scam\nне_наш_pid,1\n"); return r.length === 2; }
+           catch (e) { return false; } })());
+
+      // режим по репликам: benign нельзя до конца диалога
+      idx = 2; mode = "full"; toggleMode();
+      ok("режим переключился в seq", mode === "seq");
+      // saw_full «липкий», как в паке раунда 1: диалог 2 уже мелькнул в полном режиме
+      // при загрузке CSV, поэтому для проверки seq берём следующий, ещё не показанный
+      ok("показанный целиком диалог помечен full", st[2].saw_full === true);
+      go(1);
+      ok("новый диалог в seq не помечен как full", st[3].saw_full === false);
+      st[3].revealed = 1; render();
+      ok("benign заблокирован, пока диалог не раскрыт", $("bNo").disabled === true);
+      while (visibleTurns() < D[3].turns.length) revealNext();
+      render();
+      ok("benign разблокирован после полного раскрытия", $("bNo").disabled === false);
+      ok("view_mode остаётся seq после раскрытия по одной", st[3].saw_full === false);
+      toggleMode();
+      ok("режим вернулся в full", mode === "full");
+
+      ok("хранилище браузера не используется",
+         !/(?:window\s*\.\s*)?(?:localStorage|sessionStorage)\s*(?:\.|\[)/
+           .test(document.documentElement.innerHTML));
+
+      const fails = log.filter(l => l.startsWith("FAIL"));
+      const pre = document.createElement("pre");
+      pre.id = "selftest";
+      pre.textContent = `SELFTEST ${fails.length ? "FAILED" : "OK"} ` +
+        `(${log.length - fails.length}/${log.length})\n` + log.join("\n");
+      document.body.prepend(pre);
+      document.title = fails.length ? "SELFTEST FAILED" : "SELFTEST OK";
+    }, 60);
+  } catch (err) {
+    const pre = document.createElement("pre");
+    pre.id = "selftest";
+    pre.textContent = "SELFTEST FAILED (исключение)\n" + err.stack;
+    document.body.prepend(pre);
+    document.title = "SELFTEST FAILED";
+    throw err;
+  }
+}
+
+render();
+if (location.search.includes("selftest")) runSelfTest();
+</script>
+</body>
+</html>

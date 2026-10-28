@@ -1,0 +1,117 @@
+# Центральный конфиг проекта. Значения лоссов/OAD — из методички (Секции 4,7); заменяемы.
+project: scam-onset
+
+languages: [ru, en, zh]
+subtypes:  [phishing_link, money_request, other]   # K=3, мультилейбл
+
+paths:
+  raw:         data/raw
+  skeletons:   data/skeletons
+  synth:       data/synth
+  annotations: data/annotations
+  augmented:   data/augmented
+  corpus:      data/corpus
+  splits:      data/splits
+  gold:        data/annotations/calibration_items_gold.csv
+
+# --- калибровка / заморозка v1->v1.1 (Секция 6 методички, протокол §4) ---
+calibration:
+  freeze_thresholds:
+    kappa_is_scam:      0.80
+    kappa_subtype_macro: 0.75
+    onset_alpha:        0.67     # Krippendorff interval
+    onset_agree_pm1:    0.90
+  onset_agg: median_lower        # чётное число -> меньшее центральное
+
+# --- генерация корпуса (Путь A, методичка §9.2 стадии 0-1) ---
+generation:
+  # Пилот: один генератор допустим. ПОЛНЫЙ корпус требует >=2 генераторов
+  # (методичка §9.4: «генераторный артефакт») — ротация по списку уже в пайплайне.
+  # Мульти-вендор: claude-* -> Anthropic (ANTHROPIC_API_KEY), deepseek-* -> DeepSeek
+  # (DEEPSEEK_API_KEY). Роутинг по имени модели — build_client/RoutedClient.
+  # Текущий режим: только DeepSeek, 2 модели (§9.4 «≥2 генератора»; одновендор — слабее,
+  # чем 2 разных вендора, но формально удовлетворяет). Нужен лишь DEEPSEEK_API_KEY.
+  models: [deepseek-chat, deepseek-reasoner]
+  api: {version: "2023-06-01", max_tokens: 4096, temperature: 1.0, timeout_s: 180, max_attempts: 2}
+  turns: {min: 6, max: 14}       # длина диалога (реплик); решение по корпусу: 6-14
+  pilot_n: 50
+  scam_share: 0.5                # целевой баланс scam/benign
+
+# --- полный корпус (масштаб пилота 50 -> 2000; scripts/generate_corpus.py) ---
+corpus:
+  target_n: 2000
+  per_lang: {ru: 667, en: 667, zh: 666}   # сумма = target_n
+  scam_ratio: 0.5                          # баланс scam/benign
+  hard_neg_ratio: 0.35                     # доля hard-negative СРЕДИ benign (диллюция чистыми benign)
+  turns_range: [6, 14]                     # длина диалога; == generation.turns
+  min_per_scenario: 10                     # минимум диалогов на каждый из 19 сценариев (на сплиты)
+  # ЧЕКПОИНТЫ: результат пишется по одному диалогу (append), resume по skeleton_id.
+
+# --- второй генератор (проверка стилевого отпечатка; scripts/generate_gen2.py) ---
+# Корпус v1 сделан ОДНИМ вендором (DeepSeek). Последствие измерено: TF-IDF
+# воспроизводит silver на 98.7%, слой 2 на 98.9%, сам DeepSeek на 99.0%. gen2 —
+# контрольная партия ДРУГИМ вендором на тех же промптах и той же таксономии.
+gen2:
+  target_n: 200
+  per_lang: {ru: 67, en: 67, zh: 66}      # сумма = target_n
+  scam_ratio: 0.5                          # как у corpus.scam_ratio
+  hard_neg_ratio: 0.35                     # как у corpus.hard_neg_ratio
+  turns_range: [6, 14]                     # как у corpus.turns_range
+  seed: 20260812
+  sid_prefix: gen2                         # sid не пересекаются с corpus_v1
+  # Вендор ОБЯЗАН быть не-DeepSeek, иначе проверка бессмысленна. Роутинг по имени
+  # модели: claude-* -> Anthropic (ANTHROPIC_API_KEY). Ключа в окружении пока нет.
+  models: [claude-opus-5]
+  # Плейсхолдер ссылки: в v1 было (URL) и генератор писал слово «ссылка» — ноль
+  # диалогов с http/www на 2000, из-за чего у подтипа phishing_link не оказалось
+  # поверхностного якоря (см. CLAUDE.md «Слой 0»). Здесь — обезвреженный,
+  # но структурно похожий URL; .example зарезервирован RFC 2606 и не резолвится.
+  url_style: defanged
+  url_example: "hxxp://secure-verify[.]example/a8f2"
+
+# --- сплиты train/val/test (шаг 3; scripts/make_splits.py) ---
+splits:
+  fractions: {train: 0.70, val: 0.10, test: 0.20}
+  master_seed: 20260721          # фиксированный seed поиска сплита
+  n_trials: 1000                 # рандомизированных жадных проходов (>= 1000)
+  large_group_min_size: 14       # группы >= этого размера: запрет val, в test <= 1
+  # допуски валидации (п.п.): пропорции +-2, страты +-5, hard-neg среди benign +-7
+  proportion_tol_pp: 2.0
+  strata_tol_pp: 5.0
+  hard_neg_tol_pp: 7.0
+
+# --- разметочные паки (золотая разметка; scripts/make_annotation_pack.py) ---
+annotation:
+  sample_seed: 20260722          # выбор подвыборки (--n) из сплита
+  shuffle_seed: 20260723         # порядок предъявления диалогов в паке
+  train_sample_n: 150            # размер train-подвыборки для разметки
+
+# --- модели (стадия 6+) ---
+models:
+  encoders:   [xlm-roberta-base, microsoft/mdeberta-v3-base]
+  embedders:  [sentence-transformers/LaBSE, intfloat/multilingual-e5-base]
+  boosters:   [lightgbm, catboost, xgboost]
+
+# --- лоссы (Секция 4) ---
+loss:
+  lambda_bin: 1.0
+  lambda_sub: 1.0
+  lambda_ons: 1.0
+  hard_neg_gamma: 1.0            # up-weight hard negatives в BCE
+  patl_weights: {onset: 2.5, post_onset: 1.5, neutral: 1.0}   # из EARS
+  latency: {eta_late: 1.0, eta_early: 0.5, mu: 0.5}           # новое: асимметрия
+
+# --- метрика OAD (Секция 7) ---
+oad: {beta: 0.5, lambda_late: 1.0, lambda_early: 2.0}
+
+# --- earliness-метрики (Секция 5.2) ---
+# ⚠ требует проверки по первоисточникам: p — Sadeque et al. 2018; o и стоимости — Losada & Crestani 2016.
+# k считается ОТ онсета: k = t̂* − t* + 1 (адаптация методички §5.2), не от реплики 1.
+earliness:
+  p:    0.5     # масштаб penalty в F_latency; ⚠ требует проверки
+  o:    3.0     # толерантный бюджет реплик от онсета в ERDE_o; ⚠ требует проверки
+  c_fp: 1.0     # стоимость ложного срабатывания; типично = доля позитивов или 1
+  c_fn: 1.0     # стоимость пропуска
+  c_tp: 1.0     # стоимость позднего верного; типично c_tp = c_fn (очень поздний TP ≈ FN)
+
+seeds: [13, 21, 42, 87, 101]      # >=3 сида (tech_report §7)

@@ -1,0 +1,138 @@
+{
+  "params": {
+    "sim_first2_threshold": 0.7,
+    "sim_full_threshold": 0.6,
+    "ngram_range": [
+      3,
+      5
+    ],
+    "analyzer": "char_wb"
+  },
+  "n_dialogs": 2000,
+  "n_groups": 1356,
+  "n_singleton_groups": 884,
+  "n_multi_groups": 472,
+  "n_dialogs_in_multi_groups": 1116,
+  "max_group_size": 37,
+  "largest_group_id": "sg_9f2f3b1a09d6",
+  "forced_twin_merges": 514,
+  "n_qualified_pairs": 188,
+  "group_size_distribution": {
+    "1": 884,
+    "2": 435,
+    "3": 14,
+    "4": 10,
+    "5": 2,
+    "6": 2,
+    "7": 1,
+    "8": 3,
+    "10": 1,
+    "14": 1,
+    "24": 1,
+    "26": 1,
+    "37": 1
+  },
+  "top_similar_pairs": [
+    {
+      "a": "corpus_en_ordinary_request_0362",
+      "b": "corpus_en_ordinary_request_0587",
+      "lang": "en",
+      "scam_type": "ordinary_request",
+      "sim_first2": 1.0,
+      "sim_full": 0.3245,
+      "a_turn1": "Hey Jordan, you got a sec?",
+      "b_turn1": "Hey Jordan, you got a sec?"
+    },
+    {
+      "a": "corpus_en_ordinary_request_0488",
+      "b": "corpus_en_ordinary_request_0544",
+      "lang": "en",
+      "scam_type": "ordinary_request",
+      "sim_first2": 1.0,
+      "sim_full": 0.2881,
+      "a_turn1": "Hey Sarah, you free for a sec?",
+      "b_turn1": "Hey Sarah, you free for a sec?"
+    },
+    {
+      "a": "corpus_zh_impersonation_bank_1384",
+      "b": "corpus_zh_impersonation_bank_1624",
+      "lang": "zh",
+      "scam_type": "impersonation_bank",
+      "sim_first2": 1.0,
+      "sim_full": 0.1245,
+      "a_turn1": "您好，请问是李明先生吗？我是工商银行信用卡中心的工作人员。",
+      "b_turn1": "您好，请问是李明先生吗？我是工商银行信用卡中心的工作人员。"
+    },
+    {
+      "a": "corpus_zh_ordinary_request_1701",
+      "b": "corpus_zh_ordinary_request_1707",
+      "lang": "zh",
+      "scam_type": "ordinary_request",
+      "sim_first2": 1.0,
+      "sim_full": 0.0682,
+      "a_turn1": "小红，在吗？有点事想跟你商量一下。",
+      "b_turn1": "小红，在吗？有点事想跟你商量一下。"
+    },
+    {
+      "a": "corpus_ru_ordinary_request_1137",
+      "b": "corpus_ru_ordinary_request_1294",
+      "lang": "ru",
+      "scam_type": "ordinary_request",
+      "sim_first2": 0.966,
+      "sim_full": 0.2586,
+      "a_turn1": "Привет, есть минутка? Хотел спросить кое-что.",
+      "b_turn1": "Привет, слушай, есть минутка? Хотел спросить кое-что."
+    },
+    {
+      "a": "corpus_ru_ordinary_request_1109",
+      "b": "corpus_ru_ordinary_request_1186",
+      "lang": "ru",
+      "scam_type": "ordinary_request",
+      "sim_first2": 0.919,
+      "sim_full": 0.2295,
+      "a_turn1": "Привет! Не спишь ещё?",
+      "b_turn1": "Привет, как ты? Не спишь ещё?"
+    },
+    {
+      "a": "corpus_en_ordinary_request_0513",
+      "b": "corpus_en_ordinary_request_0531",
+      "lang": "en",
+      "scam_type": "ordinary_request",
+      "sim_first2": 0.9189,
+      "sim_full": 0.4593,
+      "a_turn1": "Hey Sarah, hope you're doing well. I have a quick favor to ask.",
+      "b_turn1": "Hey Sarah, hope you're doing well. I have a quick favor to ask."
+    },
+    {
+      "a": "corpus_ru_ordinary_request_1088",
+      "b": "corpus_ru_ordinary_request_1281",
+      "lang": "ru",
+      "scam_type": "ordinary_request",
+      "sim_first2": 0.9151,
+      "sim_full": 0.2111,
+      "a_turn1": "Привет! Не спишь ещё?",
+      "b_turn1": "Привет! Не спишь ещё?"
+    },
+    {
+      "a": "corpus_en_ordinary_request_0574",
+      "b": "corpus_en_ordinary_request_0648",
+      "lang": "en",
+      "scam_type": "ordinary_request",
+      "sim_first2": 0.9042,
+      "sim_full": 0.4203,
+      "a_turn1": "Hey, you got a minute? I need to ask you something.",
+      "b_turn1": "Hey, you got a minute? Need to ask you something."
+    },
+    {
+      "a": "corpus_en_ordinary_request_0356",
+      "b": "corpus_en_ordinary_request_0611",
+      "lang": "en",
+      "scam_type": "ordinary_request",
+      "sim_first2": 0.9016,
+      "sim_full": 0.4386,
+      "a_turn1": "Hey Jordan, you got a minute? I need to ask you something.",
+      "b_turn1": "Hey Sarah, you got a minute? I need to ask you something."
+    }
+  ],
+  "warnings": []
+}

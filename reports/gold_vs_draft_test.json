@@ -1,0 +1,1394 @@
+{
+  "gold_csv": "data/annotations/annotations_test_2026-08-06_resolved.csv",
+  "corpus": "data/corpus/corpus_v1.jsonl",
+  "n_dialogs": 403,
+  "view_mode_counts": {
+    "full": 391,
+    "seq": 12
+  },
+  "n_doubt": 0,
+  "overall": {
+    "n": 403,
+    "is_scam": {
+      "accuracy": 0.8586,
+      "kappa": 0.7169,
+      "confusion_human_x_llm": {
+        "00": 146,
+        "01": 2,
+        "10": 55,
+        "11": 200
+      }
+    },
+    "hard_negative": {
+      "accuracy": 0.8139,
+      "kappa": 0.0
+    },
+    "subtypes": {
+      "phishing_link": {
+        "n": 200,
+        "kappa": 0.2466,
+        "human_pos": 126,
+        "llm_pos": 66,
+        "exact_match": 0.59
+      },
+      "money_request": {
+        "n": 200,
+        "kappa": 0.3805,
+        "human_pos": 116,
+        "llm_pos": 160,
+        "exact_match": 0.72
+      },
+      "other": {
+        "n": 200,
+        "kappa": 0.0634,
+        "human_pos": 122,
+        "llm_pos": 176,
+        "exact_match": 0.61
+      },
+      "macro_kappa": 0.2302,
+      "set_exact_match": 0.185
+    },
+    "onset_all": {
+      "n": 200,
+      "exact": 0.58,
+      "within1": 0.615,
+      "mae": 1.185,
+      "bias_human_minus_llm": 0.095,
+      "krippendorff_alpha": 0.3156
+    },
+    "onset_seq": {
+      "n": 6,
+      "exact": 0.5,
+      "within1": 0.5,
+      "mae": 1.667,
+      "bias_human_minus_llm": 1.0,
+      "krippendorff_alpha": 0.0397
+    },
+    "onset_full": {
+      "n": 194,
+      "exact": 0.5825,
+      "within1": 0.6186,
+      "mae": 1.17,
+      "bias_human_minus_llm": 0.067,
+      "krippendorff_alpha": 0.3236
+    }
+  },
+  "by_lang": {
+    "en": {
+      "n": 134,
+      "is_scam": {
+        "accuracy": 0.8433,
+        "kappa": 0.6866,
+        "confusion_human_x_llm": {
+          "00": 46,
+          "01": 0,
+          "10": 21,
+          "11": 67
+        }
+      },
+      "hard_negative": {
+        "accuracy": 0.7537,
+        "kappa": 0.0
+      },
+      "subtypes": {
+        "phishing_link": {
+          "n": 67,
+          "kappa": 0.0624,
+          "human_pos": 43,
+          "llm_pos": 20,
+          "exact_match": 0.4776
+        },
+        "money_request": {
+          "n": 67,
+          "kappa": 0.4664,
+          "human_pos": 33,
+          "llm_pos": 49,
+          "exact_match": 0.7313
+        },
+        "other": {
+          "n": 67,
+          "kappa": 0.2084,
+          "human_pos": 42,
+          "llm_pos": 56,
+          "exact_match": 0.6716
+        },
+        "macro_kappa": 0.2457,
+        "set_exact_match": 0.1791
+      },
+      "onset_all": {
+        "n": 67,
+        "exact": 0.5522,
+        "within1": 0.5672,
+        "mae": 1.194,
+        "bias_human_minus_llm": -0.239,
+        "krippendorff_alpha": 0.4208
+      },
+      "onset_seq": {
+        "n": 1,
+        "exact": 1.0,
+        "within1": 1.0,
+        "mae": 0.0,
+        "bias_human_minus_llm": 0.0,
+        "krippendorff_alpha": NaN
+      },
+      "onset_full": {
+        "n": 66,
+        "exact": 0.5455,
+        "within1": 0.5606,
+        "mae": 1.212,
+        "bias_human_minus_llm": -0.242,
+        "krippendorff_alpha": 0.4172
+      }
+    },
+    "ru": {
+      "n": 135,
+      "is_scam": {
+        "accuracy": 0.8593,
+        "kappa": 0.718,
+        "confusion_human_x_llm": {
+          "00": 50,
+          "01": 2,
+          "10": 17,
+          "11": 66
+        }
+      },
+      "hard_negative": {
+        "accuracy": 0.8444,
+        "kappa": 0.0
+      },
+      "subtypes": {
+        "phishing_link": {
+          "n": 66,
+          "kappa": 0.3564,
+          "human_pos": 46,
+          "llm_pos": 30,
+          "exact_match": 0.6667
+        },
+        "money_request": {
+          "n": 66,
+          "kappa": 0.5064,
+          "human_pos": 42,
+          "llm_pos": 50,
+          "exact_match": 0.7879
+        },
+        "other": {
+          "n": 66,
+          "kappa": 0.0143,
+          "human_pos": 42,
+          "llm_pos": 61,
+          "exact_match": 0.6212
+        },
+        "macro_kappa": 0.2924,
+        "set_exact_match": 0.2879
+      },
+      "onset_all": {
+        "n": 66,
+        "exact": 0.6515,
+        "within1": 0.7121,
+        "mae": 1.045,
+        "bias_human_minus_llm": 0.288,
+        "krippendorff_alpha": 0.2716
+      },
+      "onset_seq": {
+        "n": 3,
+        "exact": 0.3333,
+        "within1": 0.3333,
+        "mae": 2.667,
+        "bias_human_minus_llm": 2.667,
+        "krippendorff_alpha": -0.3889
+      },
+      "onset_full": {
+        "n": 63,
+        "exact": 0.6667,
+        "within1": 0.7302,
+        "mae": 0.968,
+        "bias_human_minus_llm": 0.175,
+        "krippendorff_alpha": 0.2903
+      }
+    },
+    "zh": {
+      "n": 134,
+      "is_scam": {
+        "accuracy": 0.8731,
+        "kappa": 0.7463,
+        "confusion_human_x_llm": {
+          "00": 50,
+          "01": 0,
+          "10": 17,
+          "11": 67
+        }
+      },
+      "hard_negative": {
+        "accuracy": 0.8433,
+        "kappa": 0.0
+      },
+      "subtypes": {
+        "phishing_link": {
+          "n": 67,
+          "kappa": 0.2924,
+          "human_pos": 37,
+          "llm_pos": 16,
+          "exact_match": 0.6269
+        },
+        "money_request": {
+          "n": 67,
+          "kappa": 0.1223,
+          "human_pos": 41,
+          "llm_pos": 61,
+          "exact_match": 0.6418
+        },
+        "other": {
+          "n": 67,
+          "kappa": -0.0308,
+          "human_pos": 38,
+          "llm_pos": 59,
+          "exact_match": 0.5373
+        },
+        "macro_kappa": 0.128,
+        "set_exact_match": 0.0896
+      },
+      "onset_all": {
+        "n": 67,
+        "exact": 0.5373,
+        "within1": 0.5672,
+        "mae": 1.313,
+        "bias_human_minus_llm": 0.239,
+        "krippendorff_alpha": 0.2645
+      },
+      "onset_seq": {
+        "n": 2,
+        "exact": 0.5,
+        "within1": 0.5,
+        "mae": 1.0,
+        "bias_human_minus_llm": -1.0,
+        "krippendorff_alpha": 0.0
+      },
+      "onset_full": {
+        "n": 65,
+        "exact": 0.5385,
+        "within1": 0.5692,
+        "mae": 1.323,
+        "bias_human_minus_llm": 0.277,
+        "krippendorff_alpha": 0.2683
+      }
+    }
+  },
+  "by_scam_type": {
+    "emotional_benign": {
+      "n": 59,
+      "is_scam": {
+        "accuracy": 1.0,
+        "kappa": 1.0,
+        "confusion_human_x_llm": {
+          "00": 59,
+          "01": 0,
+          "10": 0,
+          "11": 0
+        }
+      },
+      "hard_negative": {
+        "accuracy": 1.0,
+        "kappa": 1.0
+      },
+      "subtypes": {
+        "phishing_link": {
+          "n": 0,
+          "kappa": null,
+          "human_pos": 0,
+          "llm_pos": 0,
+          "exact_match": null
+        },
+        "money_request": {
+          "n": 0,
+          "kappa": null,
+          "human_pos": 0,
+          "llm_pos": 0,
+          "exact_match": null
+        },
+        "other": {
+          "n": 0,
+          "kappa": null,
+          "human_pos": 0,
+          "llm_pos": 0,
+          "exact_match": null
+        },
+        "macro_kappa": null,
+        "set_exact_match": null
+      },
+      "onset_all": {
+        "n": 0
+      },
+      "onset_seq": {
+        "n": 0
+      },
+      "onset_full": {
+        "n": 0
+      }
+    },
+    "fake_job": {
+      "n": 16,
+      "is_scam": {
+        "accuracy": 1.0,
+        "kappa": 1.0,
+        "confusion_human_x_llm": {
+          "00": 0,
+          "01": 0,
+          "10": 0,
+          "11": 16
+        }
+      },
+      "hard_negative": {
+        "accuracy": 1.0,
+        "kappa": 1.0
+      },
+      "subtypes": {
+        "phishing_link": {
+          "n": 16,
+          "kappa": 0.0725,
+          "human_pos": 9,
+          "llm_pos": 3,
+          "exact_match": 0.5
+        },
+        "money_request": {
+          "n": 16,
+          "kappa": 0.0,
+          "human_pos": 15,
+          "llm_pos": 16,
+          "exact_match": 0.9375
+        },
+        "other": {
+          "n": 16,
+          "kappa": 0.0588,
+          "human_pos": 5,
+          "llm_pos": 15,
+          "exact_match": 0.375
+        },
+        "macro_kappa": 0.0438,
+        "set_exact_match": 0.125
+      },
+      "onset_all": {
+        "n": 16,
+        "exact": 0.375,
+        "within1": 0.4375,
+        "mae": 1.188,
+        "bias_human_minus_llm": 0.312,
+        "krippendorff_alpha": 0.2409
+      },
+      "onset_seq": {
+        "n": 1,
+        "exact": 1.0,
+        "within1": 1.0,
+        "mae": 0.0,
+        "bias_human_minus_llm": 0.0,
+        "krippendorff_alpha": NaN
+      },
+      "onset_full": {
+        "n": 15,
+        "exact": 0.3333,
+        "within1": 0.4,
+        "mae": 1.267,
+        "bias_human_minus_llm": 0.333,
+        "krippendorff_alpha": 0.2275
+      }
+    },
+    "honest_marketing": {
+      "n": 10,
+      "is_scam": {
+        "accuracy": 0.3,
+        "kappa": 0.0,
+        "confusion_human_x_llm": {
+          "00": 3,
+          "01": 0,
+          "10": 7,
+          "11": 0
+        }
+      },
+      "hard_negative": {
+        "accuracy": 0.0,
+        "kappa": 0.0
+      },
+      "subtypes": {
+        "phishing_link": {
+          "n": 0,
+          "kappa": null,
+          "human_pos": 0,
+          "llm_pos": 0,
+          "exact_match": null
+        },
+        "money_request": {
+          "n": 0,
+          "kappa": null,
+          "human_pos": 0,
+          "llm_pos": 0,
+          "exact_match": null
+        },
+        "other": {
+          "n": 0,
+          "kappa": null,
+          "human_pos": 0,
+          "llm_pos": 0,
+          "exact_match": null
+        },
+        "macro_kappa": null,
+        "set_exact_match": null
+      },
+      "onset_all": {
+        "n": 0
+      },
+      "onset_seq": {
+        "n": 0
+      },
+      "onset_full": {
+        "n": 0
+      }
+    },
+    "impersonation_bank": {
+      "n": 13,
+      "is_scam": {
+        "accuracy": 1.0,
+        "kappa": 1.0,
+        "confusion_human_x_llm": {
+          "00": 0,
+          "01": 0,
+          "10": 0,
+          "11": 13
+        }
+      },
+      "hard_negative": {
+        "accuracy": 1.0,
+        "kappa": 1.0
+      },
+      "subtypes": {
+        "phishing_link": {
+          "n": 13,
+          "kappa": -0.1607,
+          "human_pos": 9,
+          "llm_pos": 1,
+          "exact_match": 0.2308
+        },
+        "money_request": {
+          "n": 13,
+          "kappa": 0.0,
+          "human_pos": 5,
+          "llm_pos": 13,
+          "exact_match": 0.3846
+        },
+        "other": {
+          "n": 13,
+          "kappa": 1.0,
+          "human_pos": 13,
+          "llm_pos": 13,
+          "exact_match": 1.0
+        },
+        "macro_kappa": 0.2798,
+        "set_exact_match": 0.0
+      },
+      "onset_all": {
+        "n": 13,
+        "exact": 1.0,
+        "within1": 1.0,
+        "mae": 0.0,
+        "bias_human_minus_llm": 0.0,
+        "krippendorff_alpha": 1.0
+      },
+      "onset_seq": {
+        "n": 0
+      },
+      "onset_full": {
+        "n": 13,
+        "exact": 1.0,
+        "within1": 1.0,
+        "mae": 0.0,
+        "bias_human_minus_llm": 0.0,
+        "krippendorff_alpha": 1.0
+      }
+    },
+    "impersonation_boss": {
+      "n": 17,
+      "is_scam": {
+        "accuracy": 1.0,
+        "kappa": 1.0,
+        "confusion_human_x_llm": {
+          "00": 0,
+          "01": 0,
+          "10": 0,
+          "11": 17
+        }
+      },
+      "hard_negative": {
+        "accuracy": 1.0,
+        "kappa": 1.0
+      },
+      "subtypes": {
+        "phishing_link": {
+          "n": 17,
+          "kappa": 0.0,
+          "human_pos": 3,
+          "llm_pos": 0,
+          "exact_match": 0.8235
+        },
+        "money_request": {
+          "n": 17,
+          "kappa": 0.0,
+          "human_pos": 16,
+          "llm_pos": 17,
+          "exact_match": 0.9412
+        },
+        "other": {
+          "n": 17,
+          "kappa": 0.0,
+          "human_pos": 7,
+          "llm_pos": 17,
+          "exact_match": 0.4118
+        },
+        "macro_kappa": 0.0,
+        "set_exact_match": 0.2353
+      },
+      "onset_all": {
+        "n": 17,
+        "exact": 0.8235,
+        "within1": 0.8235,
+        "mae": 0.353,
+        "bias_human_minus_llm": 0.353,
+        "krippendorff_alpha": 0.6857
+      },
+      "onset_seq": {
+        "n": 0
+      },
+      "onset_full": {
+        "n": 17,
+        "exact": 0.8235,
+        "within1": 0.8235,
+        "mae": 0.353,
+        "bias_human_minus_llm": 0.353,
+        "krippendorff_alpha": 0.6857
+      }
+    },
+    "impersonation_gov": {
+      "n": 15,
+      "is_scam": {
+        "accuracy": 1.0,
+        "kappa": 1.0,
+        "confusion_human_x_llm": {
+          "00": 0,
+          "01": 0,
+          "10": 0,
+          "11": 15
+        }
+      },
+      "hard_negative": {
+        "accuracy": 1.0,
+        "kappa": 1.0
+      },
+      "subtypes": {
+        "phishing_link": {
+          "n": 15,
+          "kappa": -0.2963,
+          "human_pos": 11,
+          "llm_pos": 12,
+          "exact_match": 0.5333
+        },
+        "money_request": {
+          "n": 15,
+          "kappa": 0.0,
+          "human_pos": 11,
+          "llm_pos": 15,
+          "exact_match": 0.7333
+        },
+        "other": {
+          "n": 15,
+          "kappa": 0.0,
+          "human_pos": 11,
+          "llm_pos": 15,
+          "exact_match": 0.7333
+        },
+        "macro_kappa": -0.0988,
+        "set_exact_match": 0.3333
+      },
+      "onset_all": {
+        "n": 15,
+        "exact": 0.6667,
+        "within1": 0.7333,
+        "mae": 0.6,
+        "bias_human_minus_llm": -0.6,
+        "krippendorff_alpha": -0.0694
+      },
+      "onset_seq": {
+        "n": 0
+      },
+      "onset_full": {
+        "n": 15,
+        "exact": 0.6667,
+        "within1": 0.7333,
+        "mae": 0.6,
+        "bias_human_minus_llm": -0.6,
+        "krippendorff_alpha": -0.0694
+      }
+    },
+    "impersonation_relative": {
+      "n": 15,
+      "is_scam": {
+        "accuracy": 1.0,
+        "kappa": 1.0,
+        "confusion_human_x_llm": {
+          "00": 0,
+          "01": 0,
+          "10": 0,
+          "11": 15
+        }
+      },
+      "hard_negative": {
+        "accuracy": 1.0,
+        "kappa": 1.0
+      },
+      "subtypes": {
+        "phishing_link": {
+          "n": 15,
+          "kappa": 0.0,
+          "human_pos": 2,
+          "llm_pos": 0,
+          "exact_match": 0.8667
+        },
+        "money_request": {
+          "n": 15,
+          "kappa": 1.0,
+          "human_pos": 15,
+          "llm_pos": 15,
+          "exact_match": 1.0
+        },
+        "other": {
+          "n": 15,
+          "kappa": 0.0,
+          "human_pos": 3,
+          "llm_pos": 15,
+          "exact_match": 0.2
+        },
+        "macro_kappa": 0.3333,
+        "set_exact_match": 0.1333
+      },
+      "onset_all": {
+        "n": 15,
+        "exact": 0.4,
+        "within1": 0.4667,
+        "mae": 2.067,
+        "bias_human_minus_llm": 1.4,
+        "krippendorff_alpha": -0.1533
+      },
+      "onset_seq": {
+        "n": 0
+      },
+      "onset_full": {
+        "n": 15,
+        "exact": 0.4,
+        "within1": 0.4667,
+        "mae": 2.067,
+        "bias_human_minus_llm": 1.4,
+        "krippendorff_alpha": -0.1533
+      }
+    },
+    "impersonation_support": {
+      "n": 17,
+      "is_scam": {
+        "accuracy": 1.0,
+        "kappa": 1.0,
+        "confusion_human_x_llm": {
+          "00": 0,
+          "01": 0,
+          "10": 0,
+          "11": 17
+        }
+      },
+      "hard_negative": {
+        "accuracy": 1.0,
+        "kappa": 1.0
+      },
+      "subtypes": {
+        "phishing_link": {
+          "n": 17,
+          "kappa": 0.2013,
+          "human_pos": 10,
+          "llm_pos": 7,
+          "exact_match": 0.5882
+        },
+        "money_request": {
+          "n": 17,
+          "kappa": -0.0494,
+          "human_pos": 6,
+          "llm_pos": 12,
+          "exact_match": 0.4118
+        },
+        "other": {
+          "n": 17,
+          "kappa": 0.0,
+          "human_pos": 15,
+          "llm_pos": 17,
+          "exact_match": 0.8824
+        },
+        "macro_kappa": 0.0506,
+        "set_exact_match": 0.2353
+      },
+      "onset_all": {
+        "n": 17,
+        "exact": 0.6471,
+        "within1": 0.6471,
+        "mae": 1.412,
+        "bias_human_minus_llm": 1.176,
+        "krippendorff_alpha": 0.1765
+      },
+      "onset_seq": {
+        "n": 2,
+        "exact": 0.0,
+        "within1": 0.0,
+        "mae": 4.0,
+        "bias_human_minus_llm": 2.0,
+        "krippendorff_alpha": -0.0345
+      },
+      "onset_full": {
+        "n": 15,
+        "exact": 0.7333,
+        "within1": 0.7333,
+        "mae": 1.067,
+        "bias_human_minus_llm": 1.067,
+        "krippendorff_alpha": 0.25
+      }
+    },
+    "investment": {
+      "n": 14,
+      "is_scam": {
+        "accuracy": 1.0,
+        "kappa": 1.0,
+        "confusion_human_x_llm": {
+          "00": 0,
+          "01": 0,
+          "10": 0,
+          "11": 14
+        }
+      },
+      "hard_negative": {
+        "accuracy": 1.0,
+        "kappa": 1.0
+      },
+      "subtypes": {
+        "phishing_link": {
+          "n": 14,
+          "kappa": 0.2222,
+          "human_pos": 11,
+          "llm_pos": 8,
+          "exact_match": 0.6429
+        },
+        "money_request": {
+          "n": 14,
+          "kappa": 0.0,
+          "human_pos": 10,
+          "llm_pos": 14,
+          "exact_match": 0.7143
+        },
+        "other": {
+          "n": 14,
+          "kappa": 0.0,
+          "human_pos": 9,
+          "llm_pos": 14,
+          "exact_match": 0.6429
+        },
+        "macro_kappa": 0.0741,
+        "set_exact_match": 0.2143
+      },
+      "onset_all": {
+        "n": 14,
+        "exact": 0.2143,
+        "within1": 0.2143,
+        "mae": 2.643,
+        "bias_human_minus_llm": -2.643,
+        "krippendorff_alpha": -0.4343
+      },
+      "onset_seq": {
+        "n": 0
+      },
+      "onset_full": {
+        "n": 14,
+        "exact": 0.2143,
+        "within1": 0.2143,
+        "mae": 2.643,
+        "bias_human_minus_llm": -2.643,
+        "krippendorff_alpha": -0.4343
+      }
+    },
+    "ordinary_request": {
+      "n": 67,
+      "is_scam": {
+        "accuracy": 0.9403,
+        "kappa": 0.0,
+        "confusion_human_x_llm": {
+          "00": 63,
+          "01": 0,
+          "10": 4,
+          "11": 0
+        }
+      },
+      "hard_negative": {
+        "accuracy": 1.0,
+        "kappa": 1.0
+      },
+      "subtypes": {
+        "phishing_link": {
+          "n": 0,
+          "kappa": null,
+          "human_pos": 0,
+          "llm_pos": 0,
+          "exact_match": null
+        },
+        "money_request": {
+          "n": 0,
+          "kappa": null,
+          "human_pos": 0,
+          "llm_pos": 0,
+          "exact_match": null
+        },
+        "other": {
+          "n": 0,
+          "kappa": null,
+          "human_pos": 0,
+          "llm_pos": 0,
+          "exact_match": null
+        },
+        "macro_kappa": null,
+        "set_exact_match": null
+      },
+      "onset_all": {
+        "n": 0
+      },
+      "onset_seq": {
+        "n": 0
+      },
+      "onset_full": {
+        "n": 0
+      }
+    },
+    "phishing": {
+      "n": 18,
+      "is_scam": {
+        "accuracy": 1.0,
+        "kappa": 1.0,
+        "confusion_human_x_llm": {
+          "00": 0,
+          "01": 0,
+          "10": 0,
+          "11": 18
+        }
+      },
+      "hard_negative": {
+        "accuracy": 1.0,
+        "kappa": 1.0
+      },
+      "subtypes": {
+        "phishing_link": {
+          "n": 18,
+          "kappa": 0.0,
+          "human_pos": 16,
+          "llm_pos": 18,
+          "exact_match": 0.8889
+        },
+        "money_request": {
+          "n": 18,
+          "kappa": 0.0,
+          "human_pos": 11,
+          "llm_pos": 18,
+          "exact_match": 0.6111
+        },
+        "other": {
+          "n": 18,
+          "kappa": 0.069,
+          "human_pos": 10,
+          "llm_pos": 3,
+          "exact_match": 0.5
+        },
+        "macro_kappa": 0.023,
+        "set_exact_match": 0.3889
+      },
+      "onset_all": {
+        "n": 18,
+        "exact": 0.5,
+        "within1": 0.5556,
+        "mae": 1.056,
+        "bias_human_minus_llm": -1.056,
+        "krippendorff_alpha": -0.259
+      },
+      "onset_seq": {
+        "n": 0
+      },
+      "onset_full": {
+        "n": 18,
+        "exact": 0.5,
+        "within1": 0.5556,
+        "mae": 1.056,
+        "bias_human_minus_llm": -1.056,
+        "krippendorff_alpha": -0.259
+      }
+    },
+    "prize": {
+      "n": 12,
+      "is_scam": {
+        "accuracy": 1.0,
+        "kappa": 1.0,
+        "confusion_human_x_llm": {
+          "00": 0,
+          "01": 0,
+          "10": 0,
+          "11": 12
+        }
+      },
+      "hard_negative": {
+        "accuracy": 1.0,
+        "kappa": 1.0
+      },
+      "subtypes": {
+        "phishing_link": {
+          "n": 12,
+          "kappa": 1.0,
+          "human_pos": 12,
+          "llm_pos": 12,
+          "exact_match": 1.0
+        },
+        "money_request": {
+          "n": 12,
+          "kappa": 0.3846,
+          "human_pos": 3,
+          "llm_pos": 7,
+          "exact_match": 0.6667
+        },
+        "other": {
+          "n": 12,
+          "kappa": 0.2105,
+          "human_pos": 7,
+          "llm_pos": 4,
+          "exact_match": 0.5833
+        },
+        "macro_kappa": 0.5317,
+        "set_exact_match": 0.4167
+      },
+      "onset_all": {
+        "n": 12,
+        "exact": 0.6667,
+        "within1": 0.75,
+        "mae": 0.75,
+        "bias_human_minus_llm": -0.75,
+        "krippendorff_alpha": 0.065
+      },
+      "onset_seq": {
+        "n": 0
+      },
+      "onset_full": {
+        "n": 12,
+        "exact": 0.6667,
+        "within1": 0.75,
+        "mae": 0.75,
+        "bias_human_minus_llm": -0.75,
+        "krippendorff_alpha": 0.065
+      }
+    },
+    "real_2fa": {
+      "n": 29,
+      "is_scam": {
+        "accuracy": 0.0345,
+        "kappa": 0.0,
+        "confusion_human_x_llm": {
+          "00": 1,
+          "01": 0,
+          "10": 28,
+          "11": 0
+        }
+      },
+      "hard_negative": {
+        "accuracy": 0.0,
+        "kappa": 0.0
+      },
+      "subtypes": {
+        "phishing_link": {
+          "n": 0,
+          "kappa": null,
+          "human_pos": 0,
+          "llm_pos": 0,
+          "exact_match": null
+        },
+        "money_request": {
+          "n": 0,
+          "kappa": null,
+          "human_pos": 0,
+          "llm_pos": 0,
+          "exact_match": null
+        },
+        "other": {
+          "n": 0,
+          "kappa": null,
+          "human_pos": 0,
+          "llm_pos": 0,
+          "exact_match": null
+        },
+        "macro_kappa": null,
+        "set_exact_match": null
+      },
+      "onset_all": {
+        "n": 0
+      },
+      "onset_seq": {
+        "n": 0
+      },
+      "onset_full": {
+        "n": 0
+      }
+    },
+    "real_bank_notice": {
+      "n": 10,
+      "is_scam": {
+        "accuracy": 0.0,
+        "kappa": 0.0,
+        "confusion_human_x_llm": {
+          "00": 0,
+          "01": 0,
+          "10": 10,
+          "11": 0
+        }
+      },
+      "hard_negative": {
+        "accuracy": 0.0,
+        "kappa": 0.0
+      },
+      "subtypes": {
+        "phishing_link": {
+          "n": 0,
+          "kappa": null,
+          "human_pos": 0,
+          "llm_pos": 0,
+          "exact_match": null
+        },
+        "money_request": {
+          "n": 0,
+          "kappa": null,
+          "human_pos": 0,
+          "llm_pos": 0,
+          "exact_match": null
+        },
+        "other": {
+          "n": 0,
+          "kappa": null,
+          "human_pos": 0,
+          "llm_pos": 0,
+          "exact_match": null
+        },
+        "macro_kappa": null,
+        "set_exact_match": null
+      },
+      "onset_all": {
+        "n": 0
+      },
+      "onset_seq": {
+        "n": 0
+      },
+      "onset_full": {
+        "n": 0
+      }
+    },
+    "real_delivery": {
+      "n": 12,
+      "is_scam": {
+        "accuracy": 0.8333,
+        "kappa": 0.0,
+        "confusion_human_x_llm": {
+          "00": 10,
+          "01": 0,
+          "10": 2,
+          "11": 0
+        }
+      },
+      "hard_negative": {
+        "accuracy": 0.0,
+        "kappa": 0.0
+      },
+      "subtypes": {
+        "phishing_link": {
+          "n": 0,
+          "kappa": null,
+          "human_pos": 0,
+          "llm_pos": 0,
+          "exact_match": null
+        },
+        "money_request": {
+          "n": 0,
+          "kappa": null,
+          "human_pos": 0,
+          "llm_pos": 0,
+          "exact_match": null
+        },
+        "other": {
+          "n": 0,
+          "kappa": null,
+          "human_pos": 0,
+          "llm_pos": 0,
+          "exact_match": null
+        },
+        "macro_kappa": null,
+        "set_exact_match": null
+      },
+      "onset_all": {
+        "n": 0
+      },
+      "onset_seq": {
+        "n": 0
+      },
+      "onset_full": {
+        "n": 0
+      }
+    },
+    "real_support": {
+      "n": 14,
+      "is_scam": {
+        "accuracy": 0.7143,
+        "kappa": 0.0,
+        "confusion_human_x_llm": {
+          "00": 10,
+          "01": 0,
+          "10": 4,
+          "11": 0
+        }
+      },
+      "hard_negative": {
+        "accuracy": 0.0,
+        "kappa": 0.0
+      },
+      "subtypes": {
+        "phishing_link": {
+          "n": 0,
+          "kappa": null,
+          "human_pos": 0,
+          "llm_pos": 0,
+          "exact_match": null
+        },
+        "money_request": {
+          "n": 0,
+          "kappa": null,
+          "human_pos": 0,
+          "llm_pos": 0,
+          "exact_match": null
+        },
+        "other": {
+          "n": 0,
+          "kappa": null,
+          "human_pos": 0,
+          "llm_pos": 0,
+          "exact_match": null
+        },
+        "macro_kappa": null,
+        "set_exact_match": null
+      },
+      "onset_all": {
+        "n": 0
+      },
+      "onset_seq": {
+        "n": 0
+      },
+      "onset_full": {
+        "n": 0
+      }
+    },
+    "refund": {
+      "n": 20,
+      "is_scam": {
+        "accuracy": 1.0,
+        "kappa": 1.0,
+        "confusion_human_x_llm": {
+          "00": 0,
+          "01": 0,
+          "10": 0,
+          "11": 20
+        }
+      },
+      "hard_negative": {
+        "accuracy": 1.0,
+        "kappa": 1.0
+      },
+      "subtypes": {
+        "phishing_link": {
+          "n": 20,
+          "kappa": 0.3396,
+          "human_pos": 11,
+          "llm_pos": 4,
+          "exact_match": 0.65
+        },
+        "money_request": {
+          "n": 20,
+          "kappa": -0.0345,
+          "human_pos": 6,
+          "llm_pos": 14,
+          "exact_match": 0.4
+        },
+        "other": {
+          "n": 20,
+          "kappa": 0.0,
+          "human_pos": 18,
+          "llm_pos": 20,
+          "exact_match": 0.9
+        },
+        "macro_kappa": 0.1017,
+        "set_exact_match": 0.25
+      },
+      "onset_all": {
+        "n": 20,
+        "exact": 0.5,
+        "within1": 0.55,
+        "mae": 1.75,
+        "bias_human_minus_llm": 1.45,
+        "krippendorff_alpha": 0.0874
+      },
+      "onset_seq": {
+        "n": 0
+      },
+      "onset_full": {
+        "n": 20,
+        "exact": 0.5,
+        "within1": 0.55,
+        "mae": 1.75,
+        "bias_human_minus_llm": 1.45,
+        "krippendorff_alpha": 0.0874
+      }
+    },
+    "romance": {
+      "n": 14,
+      "is_scam": {
+        "accuracy": 1.0,
+        "kappa": 1.0,
+        "confusion_human_x_llm": {
+          "00": 0,
+          "01": 0,
+          "10": 0,
+          "11": 14
+        }
+      },
+      "hard_negative": {
+        "accuracy": 1.0,
+        "kappa": 1.0
+      },
+      "subtypes": {
+        "phishing_link": {
+          "n": 14,
+          "kappa": 0.44,
+          "human_pos": 3,
+          "llm_pos": 1,
+          "exact_match": 0.8571
+        },
+        "money_request": {
+          "n": 14,
+          "kappa": 1.0,
+          "human_pos": 14,
+          "llm_pos": 14,
+          "exact_match": 1.0
+        },
+        "other": {
+          "n": 14,
+          "kappa": 0.0,
+          "human_pos": 1,
+          "llm_pos": 14,
+          "exact_match": 0.0714
+        },
+        "macro_kappa": 0.48,
+        "set_exact_match": 0.0
+      },
+      "onset_all": {
+        "n": 14,
+        "exact": 0.4286,
+        "within1": 0.4286,
+        "mae": 1.929,
+        "bias_human_minus_llm": 1.5,
+        "krippendorff_alpha": 0.2981
+      },
+      "onset_seq": {
+        "n": 2,
+        "exact": 0.5,
+        "within1": 0.5,
+        "mae": 1.0,
+        "bias_human_minus_llm": 1.0,
+        "krippendorff_alpha": 0.0
+      },
+      "onset_full": {
+        "n": 12,
+        "exact": 0.4167,
+        "within1": 0.4167,
+        "mae": 2.083,
+        "bias_human_minus_llm": 1.583,
+        "krippendorff_alpha": 0.2428
+      }
+    },
+    "tech_support": {
+      "n": 31,
+      "is_scam": {
+        "accuracy": 0.9355,
+        "kappa": 0.0,
+        "confusion_human_x_llm": {
+          "00": 0,
+          "01": 2,
+          "10": 0,
+          "11": 29
+        }
+      },
+      "hard_negative": {
+        "accuracy": 1.0,
+        "kappa": 1.0
+      },
+      "subtypes": {
+        "phishing_link": {
+          "n": 29,
+          "kappa": 0.0,
+          "human_pos": 29,
+          "llm_pos": 0,
+          "exact_match": 0.0
+        },
+        "money_request": {
+          "n": 29,
+          "kappa": 0.3439,
+          "human_pos": 4,
+          "llm_pos": 5,
+          "exact_match": 0.8276
+        },
+        "other": {
+          "n": 29,
+          "kappa": 0.0,
+          "human_pos": 23,
+          "llm_pos": 29,
+          "exact_match": 0.7931
+        },
+        "macro_kappa": 0.1146,
+        "set_exact_match": 0.0
+      },
+      "onset_all": {
+        "n": 29,
+        "exact": 0.6897,
+        "within1": 0.7241,
+        "mae": 0.724,
+        "bias_human_minus_llm": -0.31,
+        "krippendorff_alpha": 0.1027
+      },
+      "onset_seq": {
+        "n": 1,
+        "exact": 1.0,
+        "within1": 1.0,
+        "mae": 0.0,
+        "bias_human_minus_llm": 0.0,
+        "krippendorff_alpha": NaN
+      },
+      "onset_full": {
+        "n": 28,
+        "exact": 0.6786,
+        "within1": 0.7143,
+        "mae": 0.75,
+        "bias_human_minus_llm": -0.321,
+        "krippendorff_alpha": 0.0947
+      }
+    }
+  },
+  "n_disagreements": 257,
+  "disagreement_kinds": {
+    "subtypes": 163,
+    "onset": 84,
+    "is_scam": 57,
+    "hard_negative": 75
+  }
+}
